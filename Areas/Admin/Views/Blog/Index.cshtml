@@ -1,0 +1,109 @@
+@model IEnumerable<AkinTeknik.Web.Models.BlogPost>
+
+@{
+    ViewData["Title"] = "Blog Yönetimi";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sm:p-8">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8 pb-4 border-b border-gray-100">
+        <div>
+            <h1 class="text-2xl font-black text-gray-900">Blog Yazıları</h1>
+            <p class="text-sm text-gray-500 mt-1">Sitenizdeki teknik makaleleri, rehberleri ve sektörel haberleri buradan yönetin.</p>
+        </div>
+        <a href="/Admin/Blog/Create" class="bg-akinRed hover:bg-red-700 text-white font-bold py-2.5 px-5 rounded-xl shadow transition duration-200 flex items-center text-sm">
+            <i class="fas fa-plus mr-2"></i> Yeni Yazı Ekle
+        </a>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="mb-6 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-xl flex items-center shadow-sm text-sm">
+            <i class="fas fa-check-circle mr-3 text-lg text-green-500"></i>
+            <span>@TempData["Success"]</span>
+        </div>
+    }
+
+    @if (Model != null && Model.Any())
+    {
+        <div class="overflow-x-auto rounded-xl border border-gray-100">
+            <table class="min-w-full divide-y divide-gray-200 text-sm">
+                <thead class="bg-gray-50 text-gray-500 font-bold uppercase text-xs">
+                    <tr>
+                        <th scope="col" class="px-6 py-3.5 text-left">Görsel</th>
+                        <th scope="col" class="px-6 py-3.5 text-left">Başlık</th>
+                        <th scope="col" class="px-6 py-3.5 text-left">Tarih</th>
+                        <th scope="col" class="px-6 py-3.5 text-left">Durum</th>
+                        <th scope="col" class="px-6 py-3.5 text-right">İşlemler</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200 bg-white">
+                    @foreach (var post in Model)
+                    {
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="w-16 h-12 rounded-lg bg-gray-100 overflow-hidden border border-gray-200 flex items-center justify-center">
+                                    @if (!string.IsNullOrEmpty(post.ImageUrl))
+                                    {
+                                        <img src="@post.ImageUrl" alt="@post.Title Görseli" class="w-full h-full object-cover" />
+                                    }
+                                    else
+                                    {
+                                        <i class="fas fa-newspaper text-gray-300"></i>
+                                    }
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 font-semibold text-gray-900 max-w-md">
+                                <div class="truncate">@post.Title</div>
+                                <span class="text-xs text-gray-400 block mt-0.5 truncate">/Blog/@post.Slug</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-gray-500 text-xs">
+                                @post.CreatedAt.ToString("dd.MM.yyyy HH:mm")
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                @if (post.IsPublished)
+                                {
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-green-100 text-green-800">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-green-500 mr-1.5"></span> Yayında
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-gray-100 text-gray-600">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-gray-400 mr-1.5"></span> Taslak
+                                    </span>
+                                }
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-right space-x-2">
+                                <a href="/Blog/@post.Slug" target="_blank" class="text-gray-400 hover:text-akinRed p-1" title="Sitede İncele">
+                                    <i class="fas fa-external-link-alt"></i>
+                                </a>
+                                <a href="/Admin/Blog/Edit/@post.Id" class="text-blue-600 hover:text-blue-800 font-semibold p-1" title="Düzenle">
+                                    <i class="fas fa-edit"></i> Düzenle
+                                </a>
+                                <form action="/Admin/Blog/Delete" method="post" class="inline m-0" onsubmit="return confirm('Bu blog yazısını silmek istediğinize emin misiniz?');">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@post.Id" />
+                                    <button type="submit" class="text-red-500 hover:text-red-700 font-semibold p-1" title="Sil">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="text-center py-16 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200">
+            <i class="fas fa-feather-alt text-4xl text-gray-300 mb-3"></i>
+            <h3 class="text-base font-bold text-gray-700">Henüz blog yazısı eklenmemiş</h3>
+            <p class="text-xs text-gray-500 mt-1 max-w-sm mx-auto">Sektörel bilgi birikiminizi paylaşarak Google'da öne çıkmak için ilk yazınızı ekleyin.</p>
+            <a href="/Admin/Blog/Create" class="mt-4 inline-flex items-center text-sm font-bold text-akinRed hover:underline">
+                <i class="fas fa-plus mr-1.5"></i> Yeni Yazı Yaz
+            </a>
+        </div>
+    }
+</div>

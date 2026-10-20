@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Akın Teknik Admin</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png?v=2" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon.png?v=2" />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=2" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=2" />
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        akinRed: '#da291c', // Akın Teknik kırmızı tonu (örnektir, logoya göre ayarlanabilir)
+                        akinBlack: '#1a1a1a',
+                        akinGray: '#f3f4f6'
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+</head>
+
+<body class="bg-akinGray text-akinBlack font-sans antialiased">
+
+    <!-- Navbar -->
+    <nav class="bg-akinBlack text-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex items-center justify-between w-full h-16">
+                    <div class="flex items-center">
+                        <a href="/Admin" class="flex-shrink-0 font-bold text-xl tracking-wider hover:opacity-80 transition-opacity">
+                            <span class="text-akinRed">ADMİN</span> PANEL
+                        </a>
+                        <div class="hidden md:block">
+                            <div class="ml-10 flex items-baseline space-x-4">
+                                <a href="/Admin/Category"
+                                    class="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700">Kategoriler</a>
+                                <a href="/Admin/Product"
+                                    class="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700">Ürünler</a>
+                                <a href="/Admin/Slider"
+                                    class="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700">Slider Yönetimi</a>
+                                <a href="/Admin/About"
+                                    class="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700">Hakkımızda Yönetimi</a>
+                                <a href="/Admin/Blog"
+                                    class="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-700">Blog Yönetimi</a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Sağ Kısım: Siteye Dön & Çıkış Yap -->
+                    <div class="flex items-center space-x-3">
+                        <a href="/" target="_blank" class="flex items-center text-xs sm:text-sm font-medium text-gray-300 hover:text-white bg-gray-800 hover:bg-gray-700 px-3.5 py-2 rounded-md transition-colors">
+                            <i class="fas fa-external-link-alt mr-1.5"></i> <span class="hidden sm:inline">Siteyi Görüntüle</span>
+                        </a>
+
+                        <form asp-area="Admin" asp-controller="Account" asp-action="Logout" method="post" class="inline">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="flex items-center text-xs sm:text-sm font-medium text-red-300 hover:text-white bg-red-950/60 hover:bg-akinRed border border-red-800/60 hover:border-akinRed px-3.5 py-2 rounded-md transition-all cursor-pointer" title="Güvenli Çıkış Yap">
+                                <i class="fas fa-sign-out-alt mr-1.5"></i> Çıkış Yap
+                            </button>
+                        </form>
+                    </div>
+                </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        <main>
+            @RenderBody()
+        </main>
+    </div>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+
+</html>

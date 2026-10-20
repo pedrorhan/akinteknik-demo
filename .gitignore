@@ -1,0 +1,20 @@
+## .NET / C# Build Artifacts
+bin/
+obj/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+.vscode/
+.idea/
+
+## SQLite temporary files
+*.db-shm
+*.db-wal
+
+## Uploaded Media
+**/wwwroot/uploads/
+
+## OS & General
+.DS_Store
+Thumbs.db

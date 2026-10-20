@@ -1,0 +1,242 @@
+@model AkinTeknik.Web.Models.Product
+
+@using AkinTeknik.Web.Helpers
+@{
+    ViewData["Title"] = "Ürün Düzenle";
+    var categories = ViewBag.Categories as IEnumerable<AkinTeknik.Web.Models.Category>;
+    var categoryMap = ViewBag.CategoryMap as IDictionary<int, AkinTeknik.Web.Models.Category>;
+}
+
+<div class="max-w-4xl mx-auto bg-white rounded-lg shadow-md p-8">
+    <div class="mb-6 border-b pb-4">
+        <h1 class="text-2xl font-bold text-akinBlack">Ürün Düzenle</h1>
+        <p class="text-sm text-gray-500 mt-1">Mevcut ürünün bilgilerini güncelleyin.</p>
+    </div>
+
+    <form asp-action="Edit" method="post" enctype="multipart/form-data" class="space-y-6">
+        <input type="hidden" asp-for="Id" />
+        <input type="hidden" asp-for="ImageUrl" />
+        <input type="hidden" asp-for="Slug" />
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Ürün Resmi -->
+            <div class="md:col-span-2">
+                <label class="block text-sm font-medium text-gray-700">Yeni Görsel Yükle (Değiştirmek İstemiyorsanız Boş Bırakın)</label>
+                <input type="file" name="imageFile" accept="image/*" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-akinRed focus:ring-akinRed sm:text-sm p-2 border" />
+                @if(!string.IsNullOrEmpty(Model.ImageUrl))
+                {
+                    <div class="mt-2">
+                        <p class="text-xs text-gray-500 mb-1">Mevcut Görsel:</p>
+                        <img src="@Model.ImageUrl" alt="@Model.Name - Mevcut Ürün Görseli" class="h-20 w-20 object-cover rounded shadow" />
+                    </div>
+                }
+            </div>
+
+            <!-- Ürün Adı -->
+            <div>
+                <label asp-for="Name" class="block text-sm font-medium text-gray-700">Ürün Adı <span class="text-red-500">*</span></label>
+                <input asp-for="Name" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-akinRed focus:ring-akinRed sm:text-sm p-2 border" required />
+                <span asp-validation-for="Name" class="text-sm text-red-600"></span>
+            </div>
+
+            <!-- Kategori -->
+            <div>
+                <label asp-for="CategoryId" class="block text-sm font-medium text-gray-700">Kategori <span class="text-red-500">*</span></label>
+                <select asp-for="CategoryId" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-akinRed focus:ring-akinRed sm:text-sm p-2.5 border font-medium bg-white" required>
+                    <option value="">-- Kategori Seçiniz --</option>
+                    @if(categories != null)
+                    {
+                        foreach (var cat in categories)
+                        {
+                            var fullName = (categoryMap != null && cat.ParentCategoryId.HasValue)
+                                ? $"↳ {CategoryHelper.GetFullHierarchyName(cat.Id, categoryMap)}"
+                                : cat.Name;
+                            <option value="@cat.Id">@fullName</option>
+                        }
+                    }
+                </select>
+                <span asp-validation-for="CategoryId" class="text-sm text-red-600"></span>
+            </div>
+
+            <!-- Fiyat -->
+            <div>
+                <label asp-for="Price" class="block text-sm font-medium text-gray-700">Varsayılan Fiyat <span class="text-red-500">*</span></label>
+                <input asp-for="Price" type="number" step="0.01" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-akinRed focus:ring-akinRed sm:text-sm p-2 border" required />
+                <span asp-validation-for="Price" class="text-sm text-red-600"></span>
+            </div>
+
+            <!-- Stok -->
+            <div>
+                <label asp-for="Stock" class="block text-sm font-medium text-gray-700">Varsayılan Stok <span class="text-red-500">*</span></label>
+                <input asp-for="Stock" type="number" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-akinRed focus:ring-akinRed sm:text-sm p-2 border" required />
+                <span asp-validation-for="Stock" class="text-sm text-red-600"></span>
+            </div>
+            
+            <!-- Kullanım Alanı -->
+            <div class="md:col-span-2">
+                <label asp-for="UsageArea" class="block text-sm font-medium text-gray-700">Kullanım Alanı</label>
+                <input asp-for="UsageArea" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-akinRed focus:ring-akinRed sm:text-sm p-2 border" />
+            </div>
+
+            <!-- Varsayılan Özellikler -->
+            <div>
+                <label asp-for="Dimensions" class="block text-sm font-medium text-gray-700">Varsayılan 1. Özellik (Ölçü)</label>
+                <input asp-for="Dimensions" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-akinRed focus:ring-akinRed sm:text-sm p-2 border" />
+            </div>
+            <div>
+                <label asp-for="Type" class="block text-sm font-medium text-gray-700">Varsayılan 2. Özellik (Tip)</label>
+                <input asp-for="Type" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-akinRed focus:ring-akinRed sm:text-sm p-2 border" />
+            </div>
+            <div class="md:col-span-2">
+                <label asp-for="Detail" class="block text-sm font-medium text-gray-700">Varsayılan 3. Özellik (Detay)</label>
+                <input asp-for="Detail" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-akinRed focus:ring-akinRed sm:text-sm p-2 border" />
+            </div>
+
+            <!-- Description -->
+            <div class="md:col-span-2">
+                <label asp-for="Description" class="block text-sm font-medium text-gray-700">Detaylı Açıklama</label>
+                <textarea asp-for="Description" rows="4" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-akinRed focus:ring-akinRed sm:text-sm p-2 border"></textarea>
+                <span asp-validation-for="Description" class="text-sm text-red-600"></span>
+            </div>
+
+            <!-- Çok Satanlar -->
+            <div class="md:col-span-2 flex items-center p-4 bg-gray-50 border rounded-lg mt-2">
+                <input asp-for="IsBestSeller" type="checkbox" class="h-5 w-5 text-akinRed focus:ring-akinRed border-gray-300 rounded cursor-pointer" />
+                <label asp-for="IsBestSeller" class="ml-2 block text-sm font-bold text-gray-900 cursor-pointer">
+                    Ana Sayfa "Çok Satanlar" Vitrininde Göster
+                </label>
+            </div>
+        </div>
+
+        <!-- Butonlar -->
+        <div class="flex items-center justify-end space-x-4 pt-6 border-t">
+            <a href="/Admin/Product/Index" class="text-sm font-medium text-gray-700 hover:text-gray-900">İptal</a>
+            <button type="submit" class="bg-akinRed hover:bg-red-700 text-white font-bold py-2 px-6 rounded shadow transition duration-200">
+                Değişiklikleri Kaydet
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- ALT ÖLÇÜ (VARYANT) YÖNETİMİ PANELİ -->
+<div class="max-w-4xl mx-auto bg-white rounded-lg shadow-md p-8 mt-8 border-t-4 border-akinBlack">
+    <div class="mb-6 border-b pb-4">
+        <h2 class="text-xl font-bold text-akinBlack">Farklı Ölçüler / Fiyatlar (Varyantlar)</h2>
+        <p class="text-sm text-gray-500 mt-1">Bu ürün için farklı boyutlar ve onlara özel fiyat/stok tanımlayın.</p>
+    </div>
+
+    @if(TempData["Error"] != null)
+    {
+        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">
+            <strong class="font-bold">Hata:</strong>
+            <span class="block sm:inline">@TempData["Error"]</span>
+        </div>
+    }
+
+    <!-- Mevcut Ölçüler Tablosu -->
+    <div class="mb-8">
+        <h3 class="text-md font-semibold mb-3">Ekli Olan Ölçüler</h3>
+        @if(Model.ProductSizes != null && Model.ProductSizes.Any())
+        {
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200 border">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Görsel</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Ölçü (Zorunlu)</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Tip / Özellik</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Detay / Ambalaj</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Fiyat</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Stok</th>
+                            <th class="px-4 py-2 text-right text-xs font-medium text-gray-500">İşlem</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        @foreach(var size in Model.ProductSizes)
+                        {
+                            <tr>
+                                <td class="px-4 py-2">
+                                    @if(!string.IsNullOrEmpty(size.ImageUrl)){
+                                        <img src="@size.ImageUrl" alt="@size.Size - @Model.Name Varyantı" class="h-10 w-10 object-cover rounded" />
+                                    }else{
+                                        <span class="text-xs text-gray-400">Varsayılan</span>
+                                    }
+                                </td>
+                                <td class="px-4 py-2 text-sm font-semibold">@size.Size</td>
+                                <td class="px-4 py-2 text-sm text-gray-600">@(string.IsNullOrEmpty(size.Type) ? "-" : size.Type)</td>
+                                <td class="px-4 py-2 text-sm text-gray-600">@(string.IsNullOrEmpty(size.Detail) ? "-" : size.Detail)</td>
+                                <td class="px-4 py-2 text-sm font-bold text-green-600">@size.Price.ToString("C")</td>
+                                <td class="px-4 py-2 text-sm">@size.Stock</td>
+                                <td class="px-4 py-2 text-right">
+                                    <form action="/Admin/Product/DeleteVariant" method="post" onsubmit="return confirm('Silmek istediğinize emin misiniz?');">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="variantId" value="@size.Id" />
+                                        <input type="hidden" name="productId" value="@Model.Id" />
+                                        <button type="submit" class="text-red-600 hover:text-red-900"><i class="fas fa-trash"></i> Sil</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <p class="text-sm text-gray-500 italic border p-4 rounded bg-gray-50">Bu ürüne henüz hiç alt özellik eklenmemiş. Aşağıdan ekleyebilirsiniz.</p>
+        }
+    </div>
+
+    <!-- Yeni Ölçü Ekleme Formu -->
+    <div class="bg-gray-50 p-6 rounded-lg border border-gray-200">
+        <h3 class="text-lg font-bold text-akinBlack mb-4">Yeni Varyant / Alt Özellik Ekle</h3>
+        <form action="/Admin/Product/AddVariant" method="post" enctype="multipart/form-data" class="space-y-4">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="ProductId" value="@Model.Id" />
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">1. Özellik (Ölçü) *</label>
+                    <input type="text" name="Size" placeholder="Örn: 4x25x3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-akinRed focus:ring-akinRed sm:text-sm p-2 border" required />
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">2. Özellik (Tip - Opsiyonel)</label>
+                    <input type="text" name="Type" placeholder="Örn: İnce Kum" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-akinRed focus:ring-akinRed sm:text-sm p-2 border" />
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">3. Özellik (Detay - Opsiyonel)</label>
+                    <input type="text" name="Detail" placeholder="Örn: 20G Şırınga" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-akinRed focus:ring-akinRed sm:text-sm p-2 border" />
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">Fiyat *</label>
+                    <input type="number" step="0.01" name="Price" value="0" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-akinRed focus:ring-akinRed sm:text-sm p-2 border" required />
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">Stok *</label>
+                    <input type="number" name="Stock" value="100" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-akinRed focus:ring-akinRed sm:text-sm p-2 border" required />
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">Özel Görsel (Opsiyonel)</label>
+                    <input type="file" name="variantImage" accept="image/*" class="mt-1 block w-full text-sm border-gray-300 border p-1 rounded-md" />
+                </div>
+                
+                <div>
+                    <button type="submit" class="w-full bg-akinBlack hover:bg-akinRed text-white font-bold py-2 px-4 rounded transition-colors shadow-md">
+                        <i class="fas fa-plus mr-1"></i> Ekle
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

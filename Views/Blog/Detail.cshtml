@@ -1,0 +1,119 @@
+@model AkinTeknik.Web.Models.BlogPost
+
+@{
+    var postTitle = Model?.Title ?? "Teknik Rehber";
+    ViewData["Title"] = $"{postTitle} - Akın Teknik";
+    var bDesc = !string.IsNullOrEmpty(Model?.Summary) 
+        ? Model.Summary 
+        : $"{postTitle} - Akın Teknik blog ve teknik makale serisi.";
+    if (bDesc.Length > 160) { bDesc = bDesc.Substring(0, 157) + "..."; }
+    ViewData["Description"] = bDesc;
+    ViewData["OgImage"] = !string.IsNullOrEmpty(Model?.ImageUrl) ? Model.ImageUrl : "/images/logo.png";
+    ViewData["OgType"] = "article";
+    ViewData["Keywords"] = $"{postTitle}, kalıpçılık teknik rehberi, parlatma teknikleri, akın teknik blog";
+}
+
+@if (Model == null)
+{
+    <div class="max-w-4xl mx-auto py-20 text-center">
+        <h2 class="text-2xl font-bold text-gray-700">Yazı Bulunamadı</h2>
+        <a href="/Blog" class="text-akinRed underline mt-4 inline-block">Tüm Makalelere Dön</a>
+    </div>
+}
+else
+{
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mb-20">
+        <!-- Breadcrumb -->
+        <nav class="text-sm text-gray-500 mb-6 flex items-center space-x-2" aria-label="Gezinti Yolu">
+            <a href="/" class="hover:text-akinRed transition-colors" aria-label="Ana Sayfa"><i class="fas fa-home" aria-hidden="true"></i></a>
+            <span><i class="fas fa-chevron-right text-xs" aria-hidden="true"></i></span>
+            <a href="/Blog" class="hover:text-akinRed transition-colors">Blog</a>
+            <span><i class="fas fa-chevron-right text-xs" aria-hidden="true"></i></span>
+            <span class="text-akinBlack font-bold truncate max-w-xs">@Model.Title</span>
+        </nav>
+
+        <article class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+            <!-- Üst Başlık & Meta Bilgileri -->
+            <div class="p-6 sm:p-10 border-b border-gray-100">
+                <div class="flex items-center gap-4 text-xs font-semibold text-gray-400 mb-4">
+                    <span class="inline-flex items-center gap-1.5 text-akinRed bg-red-50 px-3 py-1 rounded-full">
+                        <i class="fas fa-tag text-[10px]"></i> Teknik Rehber
+                    </span>
+                    <span><i class="far fa-calendar-alt mr-1"></i> @Model.CreatedAt.ToString("dd MMMM yyyy")</span>
+                    <span><i class="far fa-user mr-1"></i> Akın Teknik</span>
+                </div>
+
+                <h1 class="text-2xl sm:text-4xl font-black text-gray-900 leading-tight">
+                    @Model.Title
+                </h1>
+
+                @if (!string.IsNullOrEmpty(Model.Summary))
+                {
+                    <p class="text-base sm:text-lg text-gray-600 mt-4 leading-relaxed font-medium">
+                        @Model.Summary
+                    </p>
+                }
+            </div>
+
+            <!-- Kapak Görseli -->
+            @if (!string.IsNullOrEmpty(Model.ImageUrl))
+            {
+                <div class="w-full aspect-[16/9] bg-gray-100 overflow-hidden">
+                    <img src="@Model.ImageUrl" alt="@Model.Title - Akın Teknik Blog" class="w-full h-full object-cover" />
+                </div>
+            }
+
+            <!-- Makale İçeriği -->
+            <div class="p-6 sm:p-10 text-gray-700 text-base sm:text-lg leading-relaxed space-y-6">
+                @foreach (var paragraph in Model.Content.Split(new[] { "\r\n\r\n", "\n\n" }, StringSplitOptions.RemoveEmptyEntries))
+                {
+                    <p>@paragraph</p>
+                }
+            </div>
+
+            <!-- Paylaşım & Etiketler Alt Bandı -->
+            <div class="p-6 sm:p-8 bg-gray-50 border-t border-gray-100 flex flex-col sm:flex-row justify-between items-center gap-4">
+                <div class="text-xs font-bold text-gray-500 uppercase tracking-wider">
+                    Bu Makaleyi Paylaşın:
+                </div>
+                <div class="flex items-center gap-2">
+                    <a href="https://wa.me/?text=@Uri.EscapeDataString(Model.Title + " " + Context.Request.Scheme + "://" + Context.Request.Host + "/Blog/" + Model.Slug)"
+                        target="_blank" class="w-9 h-9 rounded-full bg-green-500 hover:bg-green-600 text-white flex items-center justify-center transition-colors text-sm" title="WhatsApp'ta Paylaş">
+                        <i class="fab fa-whatsapp"></i>
+                    </a>
+                    <a href="https://www.facebook.com/sharer/sharer.php?u=@Uri.EscapeDataString(Context.Request.Scheme + "://" + Context.Request.Host + "/Blog/" + Model.Slug)"
+                        target="_blank" class="w-9 h-9 rounded-full bg-[#1877F2] hover:opacity-90 text-white flex items-center justify-center transition-opacity text-sm" title="Facebook'ta Paylaş">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    <button onclick="navigator.clipboard.writeText(window.location.href); alert('Bağlantı panoya kopyalandı!');"
+                        class="px-3 py-1.5 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 text-xs font-bold transition-colors flex items-center gap-1.5">
+                        <i class="fas fa-link"></i> Linki Kopyala
+                    </button>
+                </div>
+            </div>
+        </article>
+
+        <!-- CTA Çağrı Kutusu -->
+        <div class="mt-12 bg-gradient-to-r from-akinBlack to-gray-900 text-white rounded-3xl p-8 sm:p-10 flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl">
+            <div class="space-y-2 text-center md:text-left">
+                <h3 class="text-xl sm:text-2xl font-bold">Teknik Bilgi veya Ürün Teklifi mi Lazım?</h3>
+                <p class="text-sm text-gray-400">Atölyenize ve üretiminize en uygun kalıp sarf malzemelerini belirlemek için bize danışın.</p>
+            </div>
+            <div class="flex flex-wrap gap-3">
+                <a href="https://wa.me/905550000000" target="_blank" class="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-xl text-sm transition-colors flex items-center">
+                    <i class="fab fa-whatsapp mr-2"></i> WhatsApp'tan Sor
+                </a>
+                <a href="/Product" class="bg-akinRed hover:bg-red-700 text-white font-bold py-3 px-6 rounded-xl text-sm transition-colors flex items-center">
+                    <i class="fas fa-boxes mr-2"></i> Ürünleri Gör
+                </a>
+            </div>
+        </div>
+
+        <!-- Geri Dön Butonu -->
+        <div class="mt-8 text-center">
+            <a href="/Blog" class="inline-flex items-center text-sm font-bold text-gray-500 hover:text-akinRed transition-colors">
+                <i class="fas fa-arrow-left mr-2"></i> Tüm Blog Yazılarına Dön
+            </a>
+        </div>
+    </div>
+}

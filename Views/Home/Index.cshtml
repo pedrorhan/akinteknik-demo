@@ -1,0 +1,270 @@
+@model IEnumerable<AkinTeknik.Web.Models.Product>
+
+@{
+    ViewData["Title"] = "Akın Teknik | Kalıp Elemanları & Parlatma Ekipmanları";
+    ViewData["Description"] = "Akın Teknik ve Kuzey markasıyla; endüstriyel kalıp sarf malzemeleri, parlatma keçeleri, elmas eğeler ve teknik ekipmanlarda toptan ve perakende çözüm ortağınız.";
+    ViewData["Keywords"] = "kalıp malzemeleri, parlatma keçesi, elmas eğe, kuzey parlatma, toptan kalıp sarf malzemeleri, sanayi hırdavat, akın teknik";
+    var categories = ViewBag.Categories as IEnumerable<AkinTeknik.Web.Models.Category>;
+    var sliders = ViewBag.Sliders as IEnumerable<AkinTeknik.Web.Models.Slider>;
+}
+
+<style>
+    /* Yatay kaydırma çubuğunu gizlemek için */
+    .scrollbar-hide::-webkit-scrollbar {
+        display: none;
+    }
+    .scrollbar-hide {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+</style>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
+    
+    <!-- Semantik H1 (Ekran Okuyucular ve SEO) -->
+    <h1 class="sr-only">Akın Teknik - Endüstriyel Kalıp Elemanları ve Parlatma Ekipmanları</h1>
+
+    <!-- 1. Slider Üstü: Popüler / Seçili Kategoriler (İkincil Navbar) -->
+    <div class="flex items-center justify-start sm:justify-center space-x-6 py-3 border-b mb-6 overflow-x-auto scrollbar-hide px-2">
+        @if(categories != null)
+        {
+            @foreach(var cat in categories.Where(c => c.ParentCategoryId == null && c.IsFeatured).OrderBy(c => c.DisplayOrder))
+            {
+                <a href="/Kategori/@cat.Slug" class="text-sm font-bold text-gray-700 hover:text-akinRed whitespace-nowrap uppercase tracking-wide">
+                    @cat.Name
+                </a>
+            }
+        }
+    </div>
+
+    <!-- 2. Hero Slider -->
+    @if (sliders != null && sliders.Any())
+    {
+        <div class="relative w-full overflow-hidden mb-8 bg-white border border-gray-200 shadow-sm rounded-xl" id="hero-slider" role="region" aria-label="Öne Çıkan Kampanyalar ve Duyurular">
+            <div class="flex transition-transform duration-700 ease-in-out" id="slider-track">
+                @foreach (var s in sliders)
+                {
+                    <div class="w-full flex-shrink-0 relative h-[240px] sm:h-[320px] md:h-[400px] bg-white flex items-center justify-center">
+                        @if (!string.IsNullOrEmpty(s.TargetUrl))
+                        {
+                            <a href="@s.TargetUrl" class="block w-full h-full flex items-center justify-center p-2" aria-label="Slayt Detayı">
+                                <img src="@s.ImageUrl" class="max-w-full max-h-full object-contain hover:scale-[1.02] transition-transform duration-500" alt="Akın Teknik Kalıp Malzemeleri ve Parlatma Ekipmanları Kampanyası" />
+                            </a>
+                        }
+                        else
+                        {
+                            <div class="w-full h-full flex items-center justify-center p-2">
+                                <img src="@s.ImageUrl" class="max-w-full max-h-full object-contain" alt="Akın Teknik Endüstriyel Kalıp Sarf Malzemeleri ve Parlatma Çözümleri" />
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        
+            @if(sliders.Count() > 1)
+            {
+                <button onclick="prevSlide()" aria-label="Önceki Slayt" class="absolute left-3 top-1/2 transform -translate-y-1/2 bg-akinBlack/60 hover:bg-akinRed text-white rounded-xl w-10 h-10 flex items-center justify-center transition-colors z-10 focus:outline-none focus:ring-2 focus:ring-white">
+                    <i class="fas fa-chevron-left" aria-hidden="true"></i>
+                </button>
+                <button onclick="nextSlide()" aria-label="Sonraki Slayt" class="absolute right-3 top-1/2 transform -translate-y-1/2 bg-akinBlack/60 hover:bg-akinRed text-white rounded-xl w-10 h-10 flex items-center justify-center transition-colors z-10 focus:outline-none focus:ring-2 focus:ring-white">
+                    <i class="fas fa-chevron-right" aria-hidden="true"></i>
+                </button>
+                
+                <div class="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2 z-10" aria-label="Slayt Göstergeleri" role="tablist">
+                    @for(int i = 0; i < sliders.Count(); i++)
+                    {
+                        <div id="dot-@i" class="w-2.5 h-2.5 rounded-full bg-akinBlack opacity-30 transition-opacity"></div>
+                    }
+                </div>
+            }
+        </div>
+
+        <script>
+            let currentSlide = 0;
+            const totalSlides = @sliders.Count();
+            const track = document.getElementById('slider-track');
+            
+            function updateSlider() {
+                if(totalSlides <= 1) return;
+                track.style.transform = `translateX(-${currentSlide * 100}%)`;
+                
+                for(let i=0; i<totalSlides; i++) {
+                    let dot = document.getElementById('dot-'+i);
+                    if(dot) {
+                        dot.classList.remove('opacity-100');
+                        dot.classList.add('opacity-30');
+                    }
+                }
+                let activeDot = document.getElementById('dot-'+currentSlide);
+                if(activeDot) {
+                    activeDot.classList.remove('opacity-30');
+                    activeDot.classList.add('opacity-100');
+                }
+            }
+            
+            function nextSlide() {
+                if(totalSlides <= 1) return;
+                currentSlide = (currentSlide + 1) % totalSlides;
+                updateSlider();
+            }
+            
+            function prevSlide() {
+                if(totalSlides <= 1) return;
+                currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
+                updateSlider();
+            }
+            
+            updateSlider();
+            
+            if(totalSlides > 1){
+                setInterval(nextSlide, 5000);
+            }
+        </script>
+    }
+
+    <!-- 3. Kategoriler (Endüstriyel B2B Kartlar) -->
+    <div id="kategoriler" class="relative mb-12 scroll-mt-24">
+        <div class="flex items-center justify-between mb-4 border-b pb-2">
+            <h2 class="text-xl sm:text-2xl font-bold text-akinBlack">Ürün Kategorileri</h2>
+            <a href="/Category" class="text-xs sm:text-sm font-semibold text-akinRed hover:underline flex items-center">
+                <span>Tüm Kategoriler</span>
+                <i class="fas fa-chevron-right text-xs ml-1"></i>
+            </a>
+        </div>
+        
+        <!-- Sol Ok (Masaüstünde görünür) -->
+        <button onclick="document.getElementById('cat-scroll').scrollBy({left: -320, behavior: 'smooth'})"
+            aria-label="Önceki Kategoriler"
+            class="hidden sm:flex absolute left-0 top-1/2 transform -translate-y-1/2 -ml-3 z-20 bg-white border border-gray-300 rounded-xl w-10 h-10 items-center justify-center shadow-md text-gray-700 hover:text-akinRed hover:border-akinRed focus:outline-none focus:ring-2 focus:ring-akinRed transition-colors">
+            <i class="fas fa-chevron-left" aria-hidden="true"></i>
+        </button>
+
+        <!-- Mobilde Sağ Kenar Fade Gradient (Listenin devam ettiğini sezdirir) -->
+        <div class="pointer-events-none absolute right-0 top-10 bottom-4 w-12 bg-gradient-to-l from-gray-50 via-gray-50/70 to-transparent sm:hidden z-10"></div>
+
+        <div id="cat-scroll" class="flex space-x-4 overflow-x-auto pb-4 pt-1 px-1 scrollbar-hide snap-x" role="region" aria-label="Kategori Listesi">
+            @if(categories != null)
+            {
+                foreach(var cat in categories.Where(c => c.ParentCategoryId == null).OrderBy(c => c.DisplayOrder).ThenBy(c => c.Name))
+                {
+                    <div class="snap-start flex-shrink-0 w-28 sm:w-32 group">
+                        <a href="/Kategori/@cat.Slug" class="flex flex-col items-center justify-between h-36 sm:h-40 p-3 bg-white border border-gray-200 rounded-xl shadow-sm hover:border-akinRed hover:shadow-md transition-all duration-200 text-center" aria-label="@cat.Name Kategorisi">
+                            <div class="w-16 h-16 sm:w-20 sm:h-20 flex items-center justify-center overflow-hidden mb-2">
+                                @if(!string.IsNullOrEmpty(cat.ImageUrl)){
+                                    <img src="@cat.ImageUrl" alt="@cat.Name Kategorisi - Akın Teknik Kalıp Malzemeleri" class="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-300" />
+                                } else {
+                                    <i class="fas fa-cubes text-gray-300 group-hover:text-akinRed text-2xl transition-colors" aria-hidden="true"></i>
+                                }
+                            </div>
+                            <span class="text-xs font-bold text-gray-800 group-hover:text-akinRed line-clamp-2 leading-tight transition-colors">
+                                @cat.Name
+                            </span>
+                        </a>
+                    </div>
+                }
+            }
+        </div>
+
+        <!-- Sağ Ok (Masaüstünde görünür) -->
+        <button onclick="document.getElementById('cat-scroll').scrollBy({left: 320, behavior: 'smooth'})"
+            aria-label="Sonraki Kategoriler"
+            class="hidden sm:flex absolute right-0 top-1/2 transform -translate-y-1/2 -mr-3 z-20 bg-white border border-gray-300 rounded-xl w-10 h-10 items-center justify-center shadow-md text-gray-700 hover:text-akinRed hover:border-akinRed focus:outline-none focus:ring-2 focus:ring-akinRed transition-colors">
+            <i class="fas fa-chevron-right" aria-hidden="true"></i>
+        </button>
+    </div>
+
+    <!-- 4. Ürün Grid (Çok Satanlar) -->
+    <div class="mb-14">
+        <div class="flex items-center justify-between mb-6 border-b pb-2">
+            <h2 class="text-xl sm:text-2xl font-bold text-akinBlack">Çok Satanlar & Öne Çıkanlar</h2>
+            <a href="/Product" class="text-xs sm:text-sm font-semibold text-akinRed hover:underline flex items-center">
+                <span>Tüm Ürün Kataloğu</span>
+                <i class="fas fa-chevron-right text-xs ml-1"></i>
+            </a>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+            @if(Model != null)
+            {
+                foreach(var item in Model)
+                {
+                    <div class="bg-white rounded-xl shadow-sm hover:shadow-md hover:border-gray-300 transition-all border border-gray-200 overflow-hidden flex flex-col group">
+                        <!-- Ürün Görseli (Kutu içinde kutu hissi yok, beyaz zemin ve net çerçeve) -->
+                        <div class="h-48 w-full bg-white flex items-center justify-center border-b border-gray-100 p-4 relative overflow-hidden">
+                            @if(!string.IsNullOrEmpty(item.ImageUrl)){
+                                <img src="@item.ImageUrl" alt="@item.Name - @(item.Category != null ? item.Category.Name : "Kalıp Elemanı") | Akın Teknik" class="max-h-full object-contain group-hover:scale-105 transition-transform duration-300" />
+                            }else{
+                                <i class="fas fa-box-open text-4xl text-gray-300"></i>
+                            }
+                        </div>
+                        
+                        <!-- Ürün Detay -->
+                        <div class="p-4 flex-grow flex flex-col justify-between">
+                            <div>
+                                <span class="text-[11px] text-akinRed font-bold uppercase tracking-wider mb-1 block">
+                                    @(item.Category != null ? item.Category.Name : "Endüstriyel")
+                                </span>
+                                <h3 class="text-base font-bold text-gray-900 leading-snug group-hover:text-akinRed transition-colors line-clamp-2">
+                                    @item.Name
+                                </h3>
+                            </div>
+                            
+                            <div class="mt-4 pt-2">
+                                <a href="/Urun/@item.Slug" class="w-full bg-akinBlack hover:bg-akinRed text-white font-bold py-2.5 px-4 rounded-xl transition-colors flex items-center justify-center text-sm shadow-sm">
+                                    <i class="fas fa-search mr-2 text-xs"></i> İncele & Bilgi Al
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+
+    <!-- 5. Ana Sayfa B2B CTA Kapanış Bandı (Temizlenmiş Endüstriyel Çizgi) -->
+    <div class="mt-12 mb-8 bg-gradient-to-br from-akinBlack to-gray-900 rounded-2xl p-8 sm:p-12 text-white shadow-xl border border-gray-800 relative overflow-hidden">
+        <div class="relative z-10 max-w-4xl mx-auto text-center">
+            <span class="inline-flex items-center px-3 py-1 rounded-lg text-xs font-bold bg-akinRed/20 text-akinRed border border-akinRed/30 mb-4 tracking-wider uppercase">
+                <i class="fas fa-industry mr-1.5"></i> Kalıp & Parlatma Çözüm Ortağınız
+            </span>
+
+            <h2 class="text-2xl sm:text-3xl font-bold text-white tracking-tight mb-4">
+                Aradığınız Özel Ölçü veya Ürünü Bulamadınız mı?
+            </h2>
+
+            <p class="text-sm sm:text-base text-gray-300 max-w-2xl mx-auto mb-8 leading-relaxed">
+                Akın Teknik ve tescilli markamız <strong class="text-white">KUZEY</strong> bünyesinde; parlatma keçeleri, elmas eğeler ve kalıp ekipmanlarında özel üretim ve toptan tedarik sağlıyoruz. İhtiyacınızı veya teknik çiziminizi iletin, anında teklif hazırlayalım.
+            </p>
+
+            <!-- CTA Butonları -->
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+                <a href="https://wa.me/905550000000?text=Merhaba,%20web%20sitenizden%20ula%C5%9F%C4%B1yorum.%20Toptan%20%C3%BCr%C3%BCn%20ve%20fiyat%20teklifi%20almak%20istiyorum."
+                    target="_blank" rel="noopener noreferrer"
+                    class="w-full sm:w-auto inline-flex items-center justify-center bg-green-600 hover:bg-green-700 text-white font-bold text-sm sm:text-base px-7 py-3.5 rounded-xl shadow-lg hover:shadow-green-600/30 transition-all duration-200">
+                    <i class="fab fa-whatsapp text-xl mr-2.5"></i> WhatsApp ile Hızlı Teklif Al
+                </a>
+
+                <a href="/Home/Contact"
+                    class="w-full sm:w-auto inline-flex items-center justify-center bg-akinRed hover:bg-red-700 text-white font-bold text-sm sm:text-base px-7 py-3.5 rounded-xl shadow-lg hover:shadow-red-600/30 transition-all duration-200">
+                    <i class="fas fa-file-invoice mr-2.5"></i> Teklif Formu Doldur
+                </a>
+            </div>
+
+            <!-- Güven Unsurları -->
+            <div class="mt-8 pt-8 border-t border-gray-800 grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs text-gray-400">
+                <div class="flex items-center justify-center space-x-2">
+                    <i class="fas fa-check-circle text-akinRed"></i>
+                    <span>Toptan & Sanayi Tipi Fiyatlandırma</span>
+                </div>
+                <div class="flex items-center justify-center space-x-2">
+                    <i class="fas fa-shipping-fast text-akinRed"></i>
+                    <span>Hızlı Gönderim & Stoktan Teslim</span>
+                </div>
+                <div class="flex items-center justify-center space-x-2">
+                    <i class="fas fa-headset text-akinRed"></i>
+                    <span>Teknik Danışmanlık & Destek</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

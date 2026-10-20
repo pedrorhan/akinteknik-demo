@@ -1,0 +1,446 @@
+@model AkinTeknik.Web.Models.Product
+
+@{
+    ViewData["Title"] = $"{Model.Name} - Kalıp ve Parlatma Ekipmanı";
+    var pDesc = !string.IsNullOrEmpty(Model.Description) 
+        ? Model.Description 
+        : $"{Model.Name} - Akın Teknik güvencesiyle yüksek kaliteli kalıp sarf malzemesi. Teknik özellikleri inceleyin, toptan fiyat ve WhatsApp teklifi alın.";
+    if (pDesc.Length > 160) { pDesc = pDesc.Substring(0, 157) + "..."; }
+    ViewData["Description"] = pDesc;
+    ViewData["OgImage"] = !string.IsNullOrEmpty(Model.ImageUrl) ? Model.ImageUrl : "/images/logo.png";
+    ViewData["OgType"] = "product";
+    ViewData["Keywords"] = $"{Model.Name}, {Model.Category?.Name ?? "Kalıp Malzemeleri"}, parlatma ekipmanları, toptan kalıp sarf malzeme";
+
+    var relatedProducts = ViewBag.RelatedProducts as IEnumerable<AkinTeknik.Web.Models.Product>;
+    var defaultDimension = !string.IsNullOrEmpty(Model.Dimensions) ? Model.Dimensions : "Standart Ölçü";
+}
+
+<div class="bg-gray-50/70 min-h-screen py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <!-- Breadcrumb Gezinme Çubuğu -->
+        <nav class="flex items-center text-xs sm:text-sm text-gray-500 mb-6 bg-white py-2.5 px-4 rounded-xl border border-gray-200/80 shadow-xs" aria-label="Breadcrumb">
+            <ol class="inline-flex items-center flex-wrap gap-1.5 sm:gap-2">
+                <li class="inline-flex items-center">
+                    <a href="/" class="hover:text-akinRed transition-colors flex items-center gap-1.5 font-medium">
+                        <i class="fas fa-home text-xs text-gray-400"></i>
+                        <span>Ana Sayfa</span>
+                    </a>
+                </li>
+                <li class="text-gray-300">/</li>
+                <li>
+                    <a href="@(Model.Category != null ? $"/Kategori/{Model.Category.Slug}" : "/Product")" class="hover:text-akinRed transition-colors font-medium">
+                        @(Model.Category?.Name ?? "Ürünler")
+                    </a>
+                </li>
+                <li class="text-gray-300">/</li>
+                <li class="text-gray-900 font-bold truncate max-w-[200px] sm:max-w-md">
+                    @Model.Name
+                </li>
+            </ol>
+        </nav>
+
+        <!-- Ana Ürün Vitrini (2 Sütunlu Modern Kart) -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden mb-10">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-0 divide-y lg:divide-y-0 lg:divide-x divide-gray-100">
+                
+                <!-- Sol Sütun: Ürün Görseli (5/12) -->
+                <div class="lg:col-span-5 p-6 sm:p-8 flex flex-col justify-between bg-white">
+                    <!-- Rozetler -->
+                    <div class="flex items-center justify-between gap-2 mb-4">
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-red-50 text-akinRed border border-red-200">
+                            <i class="fas fa-layer-group text-[10px]"></i>
+                            @(Model.Category?.Name ?? "Kalıp Ekipmanı")
+                        </span>
+                        @if (Model.IsBestSeller)
+                        {
+                            <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200 shadow-2xs">
+                                <i class="fas fa-fire text-amber-500 text-xs"></i>
+                                Çok Satan
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                <i class="fas fa-check-circle text-[10px]"></i>
+                                Stokta Mevcut
+                            </span>
+                        }
+                    </div>
+
+                    <!-- Ana Resim Alanı -->
+                    <div class="relative w-full h-[360px] sm:h-[420px] bg-gradient-to-b from-gray-50/50 to-white rounded-xl border border-gray-100 flex items-center justify-center p-4 overflow-hidden group">
+                        <img id="mainImage" 
+                             src="@(!string.IsNullOrEmpty(Model.ImageUrl) ? Model.ImageUrl : "/images/no-image.png")" 
+                             alt="@Model.Name - @(Model.Category?.Name ?? "Kalıp ve Parlatma Ekipmanı") | Akın Teknik" 
+                             class="max-h-[350px] max-w-full w-auto object-contain transition-all duration-300 group-hover:scale-105 select-none" />
+                        
+                        <div class="absolute bottom-3 right-3 bg-white/90 backdrop-blur-xs text-gray-500 text-xs px-2.5 py-1 rounded-md border border-gray-200/80 shadow-2xs pointer-events-none flex items-center gap-1.5">
+                            <i class="fas fa-search-plus text-[10px]"></i>
+                            <span>Orijinal Görsel</span>
+                        </div>
+                    </div>
+
+                    <!-- Hızlı Güvence Rozetleri -->
+                    <div class="grid grid-cols-3 gap-2 pt-6 mt-4 border-t border-gray-100 text-center">
+                        <div class="p-2 rounded-lg bg-gray-50 border border-gray-100">
+                            <i class="fas fa-box text-akinRed text-base mb-1 block"></i>
+                            <span class="text-[11px] font-bold text-gray-800 block">Toptan Satış</span>
+                            <span class="text-[10px] text-gray-500">Özel İskonto</span>
+                        </div>
+                        <div class="p-2 rounded-lg bg-gray-50 border border-gray-100">
+                            <i class="fas fa-truck-fast text-akinRed text-base mb-1 block"></i>
+                            <span class="text-[11px] font-bold text-gray-800 block">Hızlı Gönderim</span>
+                            <span class="text-[10px] text-gray-500">Aynı Gün Kargo</span>
+                        </div>
+                        <div class="p-2 rounded-lg bg-gray-50 border border-gray-100">
+                            <i class="fas fa-certificate text-akinRed text-base mb-1 block"></i>
+                            <span class="text-[11px] font-bold text-gray-800 block">%100 Orijinal</span>
+                            <span class="text-[10px] text-gray-500">Kuzey Kalitesi</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sağ Sütun: Sipariş & Teklif Formu (7/12) -->
+                <div class="lg:col-span-7 p-6 sm:p-10 flex flex-col justify-between">
+                    <div>
+                        <!-- Başlık -->
+                        <h1 class="text-2xl sm:text-3xl lg:text-4xl font-black text-gray-900 tracking-tight leading-tight mb-4">
+                            @Model.Name
+                        </h1>
+
+                        <!-- Hızlı Özellik Hapları -->
+                        <div class="flex flex-wrap gap-2 mb-6">
+                            @if (!string.IsNullOrEmpty(Model.Dimensions))
+                            {
+                                <div class="inline-flex items-center gap-1.5 bg-gray-100 text-gray-800 px-3 py-1.5 rounded-lg text-xs font-semibold">
+                                    <i class="fas fa-ruler-combined text-akinRed text-xs"></i>
+                                    <span>Ölçü: <strong>@Model.Dimensions</strong></span>
+                                </div>
+                            }
+                            @if (!string.IsNullOrEmpty(Model.Type))
+                            {
+                                <div class="inline-flex items-center gap-1.5 bg-gray-100 text-gray-800 px-3 py-1.5 rounded-lg text-xs font-semibold">
+                                    <i class="fas fa-tag text-akinRed text-xs"></i>
+                                    <span>Tip: <strong>@Model.Type</strong></span>
+                                </div>
+                            }
+                            @if (!string.IsNullOrEmpty(Model.Detail))
+                            {
+                                <div class="inline-flex items-center gap-1.5 bg-gray-100 text-gray-800 px-3 py-1.5 rounded-lg text-xs font-semibold">
+                                    <i class="fas fa-info-circle text-akinRed text-xs"></i>
+                                    <span>Detay: <strong>@Model.Detail</strong></span>
+                                </div>
+                            }
+                        </div>
+
+                        <!-- Kısa Bilgilendirme Notu -->
+                        <div class="bg-amber-50/70 border-l-4 border-amber-400 p-3.5 rounded-r-xl mb-6 text-xs sm:text-sm text-amber-900 leading-relaxed">
+                            <div class="flex items-start gap-2">
+                                <i class="fas fa-building text-amber-600 mt-0.5 shrink-0"></i>
+                                <div>
+                                    <strong>Kurumsal & Toptan Tedarik:</strong> Kalıp ve parlatma sarf malzemelerinde endüstriyel toplu siparişleriniz için özel iskonto uygulanır. Listeye ekleyerek veya WhatsApp'tan anında fiyat teklifi alabilirsiniz.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Sepet / Teklif Formu -->
+                        <form action="/Cart/Add" method="post" class="space-y-6">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="ProductId" value="@Model.Id" />
+
+                            <!-- Varyant / Ölçü Seçimi (Varsa) -->
+                            @if (Model.ProductSizes != null && Model.ProductSizes.Any())
+                            {
+                                <div class="border-t border-gray-100 pt-5">
+                                    <div class="flex items-center justify-between mb-3">
+                                        <label class="block text-xs sm:text-sm font-bold uppercase tracking-wider text-gray-800">
+                                            Ölçü / Varyant Seçiniz <span class="text-akinRed">*</span>
+                                        </label>
+                                        <span class="text-xs text-gray-500 font-medium">@(Model.ProductSizes.Count + 1) Seçenek Mevcut</span>
+                                    </div>
+
+                                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 max-h-64 overflow-y-auto p-1 border border-gray-200 rounded-xl bg-gray-50/50">
+                                        <!-- Varsayılan Seçenek -->
+                                        <label class="cursor-pointer relative">
+                                            <input type="radio" name="VariantId" value="" class="peer sr-only" checked onchange="updateVariant('@Model.ImageUrl')" />
+                                            <div class="p-3 bg-white border-2 border-gray-200 rounded-xl peer-checked:border-akinRed peer-checked:bg-red-50/60 peer-checked:text-akinRed hover:border-gray-300 transition-all text-left shadow-2xs h-full flex flex-col justify-between">
+                                                <div class="flex items-center justify-between gap-1 mb-1">
+                                                    <span class="font-bold text-xs sm:text-sm text-gray-900 peer-checked:text-akinRed">@defaultDimension</span>
+                                                    <i class="fas fa-check-circle text-akinRed opacity-0 peer-checked:opacity-100 transition-opacity text-xs shrink-0"></i>
+                                                </div>
+                                                <div class="text-[11px] text-gray-500">
+                                                    @(string.IsNullOrEmpty(Model.Type) ? "Standart" : Model.Type)
+                                                </div>
+                                            </div>
+                                        </label>
+
+                                        <!-- Diğer Varyantlar -->
+                                        @foreach (var v in Model.ProductSizes)
+                                        {
+                                            <label class="cursor-pointer relative">
+                                                <input type="radio" name="VariantId" value="@v.Id" class="peer sr-only" onchange="updateVariant('@(string.IsNullOrEmpty(v.ImageUrl) ? Model.ImageUrl : v.ImageUrl)')" />
+                                                <div class="p-3 bg-white border-2 border-gray-200 rounded-xl peer-checked:border-akinRed peer-checked:bg-red-50/60 peer-checked:text-akinRed hover:border-gray-300 transition-all text-left shadow-2xs h-full flex flex-col justify-between">
+                                                    <div class="flex items-center justify-between gap-1 mb-1">
+                                                        <span class="font-bold text-xs sm:text-sm text-gray-900 peer-checked:text-akinRed">@v.Size</span>
+                                                        <i class="fas fa-check-circle text-akinRed opacity-0 peer-checked:opacity-100 transition-opacity text-xs shrink-0"></i>
+                                                    </div>
+                                                    <div class="text-[11px] text-gray-500 truncate">
+                                                        @(string.IsNullOrEmpty(v.Type) ? (!string.IsNullOrEmpty(v.Detail) ? v.Detail : "Özel Ölçü") : v.Type)
+                                                    </div>
+                                                </div>
+                                            </label>
+                                        }
+                                    </div>
+                                </div>
+                            }
+
+                            <!-- Adet ve Aksiyon Butonları -->
+                            <div class="border-t border-gray-100 pt-5 space-y-3">
+                                <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                                    <!-- Adet Seçici -->
+                                    <div class="flex items-center border-2 border-gray-200 rounded-xl overflow-hidden bg-white shadow-2xs h-12 w-full sm:w-36 shrink-0">
+                                        <button type="button" onclick="changeQty(-1)" aria-label="Adeti azalt" class="w-11 h-full flex items-center justify-center text-gray-600 hover:bg-gray-100 hover:text-akinRed transition-colors font-bold text-lg select-none">
+                                            <i class="fas fa-minus text-xs"></i>
+                                        </button>
+                                        <input type="number" id="productQuantity" name="Quantity" value="1" min="1" max="9999" aria-label="Sipariş adeti" class="flex-1 w-12 text-center font-bold text-gray-900 border-none outline-none focus:ring-0 p-0 text-base [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-inner-spin-button]:m-0" />
+                                        <button type="button" onclick="changeQty(1)" aria-label="Adeti artır" class="w-11 h-full flex items-center justify-center text-gray-600 hover:bg-gray-100 hover:text-akinRed transition-colors font-bold text-lg select-none">
+                                            <i class="fas fa-plus text-xs"></i>
+                                        </button>
+                                    </div>
+
+                                    <!-- Teklif Listesine Ekle Butonu -->
+                                    <button type="submit" class="flex-1 bg-akinBlack hover:bg-akinRed text-white font-bold h-12 px-6 rounded-xl shadow-md transition-all duration-200 flex items-center justify-center gap-2.5 text-sm sm:text-base">
+                                        <i class="fas fa-file-invoice text-base"></i>
+                                        <span>Teklif Listesine Ekle</span>
+                                    </button>
+                                </div>
+
+                                <!-- WhatsApp Hızlı Fiyat Butonu -->
+                                <a href="https://wa.me/905550000000?text=@Uri.EscapeDataString($"Merhaba Akın Teknik, {Model.Name} ürünü için toptan fiyat ve stok durumu hakkında bilgi almak istiyorum.")"
+                                   target="_blank" rel="noopener noreferrer"
+                                   class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold h-12 px-6 rounded-xl shadow hover:shadow-emerald-600/30 transition-all flex items-center justify-center gap-2.5 text-sm sm:text-base">
+                                    <i class="fab fa-whatsapp text-lg"></i>
+                                    <span>WhatsApp ile Hızlı Fiyat Al</span>
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Alt Bilgilendirme -->
+                    <div class="pt-6 mt-6 border-t border-gray-100 flex flex-wrap items-center justify-between text-xs text-gray-500 gap-2">
+                        <span><i class="fas fa-phone-alt mr-1 text-gray-400"></i> Telefonla Sipariş: <strong>+90 555 000 00 00</strong></span>
+                        <span><i class="fas fa-shield-alt mr-1 text-gray-400"></i> Akın Teknik Güvencesi</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Ürün Detayları ve Açıklama Sekmeleri (Geniş Format) -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 sm:p-10 mb-12">
+            
+            <!-- Sekme Başlığı -->
+            <div class="border-b border-gray-200 pb-4 mb-8">
+                <div class="flex items-center gap-3">
+                    <div class="w-2.5 h-7 bg-akinRed rounded-full"></div>
+                    <h2 class="text-xl sm:text-2xl font-black text-gray-900 tracking-tight">
+                        Ürün Açıklaması & Teknik Bilgiler
+                    </h2>
+                </div>
+            </div>
+
+            <!-- 2 Kolonlu Detay Alanı -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
+                
+                <!-- Sol Kolon: Biçimlendirilmiş Açıklama Metni (7/12) -->
+                <div class="lg:col-span-7">
+                    <h3 class="text-base font-bold text-gray-900 mb-3 flex items-center gap-2">
+                        <i class="fas fa-align-left text-akinRed text-sm"></i>
+                        <span>Detaylı Açıklama</span>
+                    </h3>
+
+                    @if (!string.IsNullOrWhiteSpace(Model.Description))
+                    {
+                        <div class="prose max-w-none text-gray-700 leading-relaxed text-sm sm:text-base font-normal whitespace-pre-line bg-gray-50/60 p-6 rounded-xl border border-gray-100">
+                            @Model.Description
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="p-6 bg-gray-50 rounded-xl border border-gray-100 text-gray-500 italic text-sm">
+                            Bu ürün için henüz detaylı metin açıklaması eklenmemiştir. Teknik özellikleri yandaki tablodan inceleyebilirsiniz.
+                        </div>
+                    }
+                </div>
+
+                <!-- Sağ Kolon: Teknik Özellikler Tablosu (5/12) -->
+                <div class="lg:col-span-5">
+                    <h3 class="text-base font-bold text-gray-900 mb-3 flex items-center gap-2">
+                        <i class="fas fa-sliders-h text-akinRed text-sm"></i>
+                        <span>Teknik Parametreler</span>
+                    </h3>
+
+                    <div class="border border-gray-200 rounded-xl overflow-hidden shadow-2xs">
+                        <table class="min-w-full text-left text-xs sm:text-sm divide-y divide-gray-200">
+                            <tbody class="divide-y divide-gray-100 bg-white">
+                                <tr class="bg-gray-50/50">
+                                    <td class="py-3 px-4 font-bold text-gray-600 w-1/3">Ürün Adı</td>
+                                    <td class="py-3 px-4 font-semibold text-gray-900">@Model.Name</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-3 px-4 font-bold text-gray-600">Kategori</td>
+                                    <td class="py-3 px-4 font-semibold text-akinRed">@(Model.Category?.Name ?? "Genel Kalıp Ekipmanı")</td>
+                                </tr>
+                                @if (!string.IsNullOrEmpty(Model.UsageArea))
+                                {
+                                    <tr class="bg-gray-50/50">
+                                        <td class="py-3 px-4 font-bold text-gray-600">Kullanım Alanı</td>
+                                        <td class="py-3 px-4 text-gray-800">@Model.UsageArea</td>
+                                    </tr>
+                                }
+                                @if (!string.IsNullOrEmpty(Model.Dimensions))
+                                {
+                                    <tr>
+                                        <td class="py-3 px-4 font-bold text-gray-600">Ölçü</td>
+                                        <td class="py-3 px-4 text-gray-800">@Model.Dimensions</td>
+                                    </tr>
+                                }
+                                @if (!string.IsNullOrEmpty(Model.Type))
+                                {
+                                    <tr class="bg-gray-50/50">
+                                        <td class="py-3 px-4 font-bold text-gray-600">Tip / Model</td>
+                                        <td class="py-3 px-4 text-gray-800">@Model.Type</td>
+                                    </tr>
+                                }
+                                @if (!string.IsNullOrEmpty(Model.Detail))
+                                {
+                                    <tr>
+                                        <td class="py-3 px-4 font-bold text-gray-600">Detay</td>
+                                        <td class="py-3 px-4 text-gray-800">@Model.Detail</td>
+                                    </tr>
+                                }
+                                <tr class="bg-gray-50/50">
+                                    <td class="py-3 px-4 font-bold text-gray-600">Tedarik Şekli</td>
+                                    <td class="py-3 px-4 text-gray-800">Toptan & Perakende</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-3 px-4 font-bold text-gray-600">Durum</td>
+                                    <td class="py-3 px-4">
+                                        <span class="inline-flex items-center text-xs font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                                            Stokta Var
+                                        </span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Toptan İletişim Kutusu -->
+                    <div class="mt-4 p-4 rounded-xl bg-gray-900 text-white flex items-center justify-between">
+                        <div>
+                            <span class="text-xs text-gray-400 block">Toplu Alım ve Özel İskonto İçin</span>
+                            <strong class="text-sm font-bold text-white">Bize Ulaşın</strong>
+                        </div>
+                        <a href="/Home/Contact" class="bg-akinRed hover:bg-red-700 text-white text-xs font-bold py-2 px-3.5 rounded-lg transition-colors">
+                            Teklif İste
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Benzer Ürünler Bölümü -->
+        @if (relatedProducts != null && relatedProducts.Any())
+        {
+            <div class="mb-12">
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <h2 class="text-xl sm:text-2xl font-black text-gray-900 tracking-tight">Benzer Ürünler</h2>
+                        <p class="text-xs sm:text-sm text-gray-500 mt-1">Bu kategorideki diğer popüler kalıp ve parlatma malzemeleri</p>
+                    </div>
+                    @if (Model.Category != null)
+                    {
+                        <a href="/Kategori/@Model.Category.Slug" class="text-xs sm:text-sm font-bold text-akinRed hover:underline flex items-center gap-1">
+                            <span>Tümünü Gör</span>
+                            <i class="fas fa-arrow-right text-xs"></i>
+                        </a>
+                    }
+                </div>
+
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
+                    @foreach (var item in relatedProducts)
+                    {
+                        <div class="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-2xs hover:shadow-md hover:border-gray-300 transition-all duration-200 flex flex-col justify-between group">
+                            <a href="/Urun/@item.Slug" class="block p-4 bg-gray-50/50 text-center">
+                                <img src="@(!string.IsNullOrEmpty(item.ImageUrl) ? item.ImageUrl : "/images/no-image.png")" 
+                                     alt="@item.Name" 
+                                     class="h-36 sm:h-44 w-auto max-w-full object-contain mx-auto group-hover:scale-105 transition-transform duration-300" />
+                            </a>
+                            <div class="p-4 flex-1 flex flex-col justify-between border-t border-gray-100">
+                                <div>
+                                    <span class="text-[10px] font-bold text-akinRed uppercase tracking-wider block mb-1">
+                                        @(Model.Category?.Name ?? "Ürün")
+                                    </span>
+                                    <h3 class="font-bold text-gray-900 text-xs sm:text-sm line-clamp-2 group-hover:text-akinRed transition-colors">
+                                        <a href="/Urun/@item.Slug">@item.Name</a>
+                                    </h3>
+                                </div>
+                                <div class="mt-3 pt-3 border-t border-gray-100 flex items-center justify-between">
+                                    <span class="text-xs text-gray-500">Katalog Ürünü</span>
+                                    <a href="/Urun/@item.Slug" class="text-xs font-bold text-akinBlack hover:text-akinRed flex items-center gap-1 transition-colors">
+                                        <span>İncele</span>
+                                        <i class="fas fa-chevron-right text-[10px]"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+
+    </div>
+</div>
+
+<script>
+    function updateVariant(newImageUrl) {
+        if(newImageUrl && newImageUrl !== '') {
+            document.getElementById('mainImage').src = newImageUrl;
+        }
+    }
+
+    function changeQty(delta) {
+        const qtyInput = document.getElementById('productQuantity');
+        let val = parseInt(qtyInput.value) || 1;
+        val += delta;
+        if (val < 1) val = 1;
+        if (val > 9999) val = 9999;
+        qtyInput.value = val;
+    }
+</script>
+
+<!-- Schema.org / Google Rich Snippets Ürün Yapılandırılmış Verisi -->
+<script type="application/ld+json">
+{
+  "@@context": "https://schema.org",
+  "@@type": "Product",
+  "name": "@Html.Raw(Model.Name.Replace("\"", "\\\""))",
+  "image": "@(string.IsNullOrEmpty(Model.ImageUrl) ? $"{Context.Request.Scheme}://{Context.Request.Host}/images/no-image.png" : (Model.ImageUrl.StartsWith("http") ? Model.ImageUrl : $"{Context.Request.Scheme}://{Context.Request.Host}{Model.ImageUrl}"))",
+  "description": "@Html.Raw((Model.Description ?? $"{Model.Name} - Akın Teknik kalıp ve parlatma malzemeleri.").Replace("\"", "\\\"").Replace("\r", " ").Replace("\n", " "))",
+  "brand": {
+    "@@type": "Brand",
+    "name": "Kuzey / Akın Teknik"
+  },
+  "category": "@Html.Raw(Model.Category?.Name ?? "Kalıp Malzemeleri")",
+  "offers": {
+    "@@type": "Offer",
+    "url": "@($"{Context.Request.Scheme}://{Context.Request.Host}/Urun/{Model.Slug}")",
+    "priceCurrency": "TRY",
+    "price": "@(Model.Price > 0 ? Model.Price.ToString("F2", System.Globalization.CultureInfo.InvariantCulture) : "0.00")",
+    "availability": "https://schema.org/InStock",
+    "itemCondition": "https://schema.org/NewCondition"
+  }
+}
+</script>

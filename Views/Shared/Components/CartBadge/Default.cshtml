@@ -1,0 +1,11 @@
+@model int
+
+<a href="/Cart" class="relative text-akinBlack hover:text-akinRed transition-colors p-1" title="Teklif Sepeti" aria-label="Teklif Sepeti@(Model > 0 ? $", {Model} ürün" : "")">
+    <i class="fas fa-shopping-cart text-2xl"></i>
+    @if (Model > 0)
+    {
+        <span class="absolute -top-1.5 -right-2 bg-akinRed text-white text-[11px] font-black px-1.5 py-0.5 rounded-full min-w-[20px] text-center shadow-sm">
+            @Model
+        </span>
+    }
+</a>

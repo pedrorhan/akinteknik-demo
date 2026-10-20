@@ -1,0 +1,144 @@
+@model AkinTeknik.Web.Models.Product
+
+@using AkinTeknik.Web.Helpers
+@{
+    ViewData["Title"] = "Yeni Ürün Ekle";
+    var categories = ViewBag.Categories as IEnumerable<AkinTeknik.Web.Models.Category>;
+    var categoryMap = ViewBag.CategoryMap as IDictionary<int, AkinTeknik.Web.Models.Category>;
+}
+
+<div class="max-w-4xl mx-auto bg-white rounded-lg shadow-md p-8">
+    <div class="mb-6 border-b pb-4">
+        <h1 class="text-2xl font-bold text-akinBlack">Yeni Ürün Ekle</h1>
+        <p class="text-sm text-gray-500 mt-1">Kataloğa yeni bir ürün tanımlayın.</p>
+    </div>
+
+    <form asp-action="Create" method="post" enctype="multipart/form-data" class="space-y-6">
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Ürün Resmi (Zorunlu) -->
+            <div class="md:col-span-2">
+                <label class="block text-sm font-medium text-gray-700">Ürün Görseli <span
+                        class="text-red-500">*</span></label>
+                <input type="file" name="imageFile" accept="image/*"
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-akinRed focus:ring-akinRed sm:text-sm p-2 border"
+                    required />
+                <p class="text-xs text-gray-400 mt-1">Ürünün listeleneceği ana fotoğrafı seçin (.jpg, .png, .webp)</p>
+            </div>
+
+            <!-- Ürün Adı -->
+            <div>
+                <label asp-for="Name" class="block text-sm font-medium text-gray-700">Ürün Adı <span
+                        class="text-red-500">*</span></label>
+                <input asp-for="Name"
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-akinRed focus:ring-akinRed sm:text-sm p-2 border"
+                    placeholder="Örn: Elmas Eğeler" required />
+                <span asp-validation-for="Name" class="text-sm text-red-600"></span>
+            </div>
+
+            <!-- Kategori -->
+            <div>
+                <label asp-for="CategoryId" class="block text-sm font-medium text-gray-700">Kategori <span
+                        class="text-red-500">*</span></label>
+                <select asp-for="CategoryId"
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-akinRed focus:ring-akinRed sm:text-sm p-2.5 border font-medium bg-white"
+                    required>
+                    <option value="">-- Kategori Seçiniz --</option>
+                    @if (categories != null)
+                    {
+                        foreach (var cat in categories)
+                        {
+                            var fullName = (categoryMap != null && cat.ParentCategoryId.HasValue)
+                                ? $"↳ {CategoryHelper.GetFullHierarchyName(cat.Id, categoryMap)}"
+                                : cat.Name;
+                            <option value="@cat.Id">@fullName</option>
+                        }
+                    }
+                </select>
+                <span asp-validation-for="CategoryId" class="text-sm text-red-600"></span>
+            </div>
+
+            <!-- Fiyat -->
+            <div>
+                <label asp-for="Price" class="block text-sm font-medium text-gray-700">Fiyat <span
+                        class="text-red-500">*</span></label>
+                <input asp-for="Price" type="number" step="0.01"
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-akinRed focus:ring-akinRed sm:text-sm p-2 border"
+                    placeholder="0.00" required />
+                <span asp-validation-for="Price" class="text-sm text-red-600"></span>
+            </div>
+
+            <!-- Stok -->
+            <div>
+                <label asp-for="Stock" class="block text-sm font-medium text-gray-700">Stok Miktarı <span
+                        class="text-red-500">*</span></label>
+                <input asp-for="Stock" type="number"
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-akinRed focus:ring-akinRed sm:text-sm p-2 border"
+                    placeholder="Adet giriniz" required />
+                <span asp-validation-for="Stock" class="text-sm text-red-600"></span>
+            </div>
+
+            <!-- Kullanım Alanı -->
+            <div class="md:col-span-2">
+                <label asp-for="UsageArea" class="block text-sm font-medium text-gray-700">Kullanım Alanı</label>
+                <input asp-for="UsageArea"
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-akinRed focus:ring-akinRed sm:text-sm p-2 border"
+                    placeholder="Örn: Metal işleme, kalıpçılık..." />
+            </div>
+
+            <!-- Varsayılan Özellikler -->
+            <div>
+                <label asp-for="Dimensions" class="block text-sm font-medium text-gray-700">Varsayılan 1. Özellik
+                    (Ölçü)</label>
+                <input asp-for="Dimensions"
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-akinRed focus:ring-akinRed sm:text-sm p-2 border"
+                    placeholder="Örn: 4x25x3" />
+            </div>
+            <div>
+                <label asp-for="Type" class="block text-sm font-medium text-gray-700">Varsayılan 2. Özellik
+                    (Tip)</label>
+                <input asp-for="Type"
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-akinRed focus:ring-akinRed sm:text-sm p-2 border"
+                    placeholder="Örn: İnce Kum" />
+            </div>
+            <div class="md:col-span-2">
+                <label asp-for="Detail" class="block text-sm font-medium text-gray-700">Varsayılan 3. Özellik
+                    (Detay)</label>
+                <input asp-for="Detail"
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-akinRed focus:ring-akinRed sm:text-sm p-2 border"
+                    placeholder="Örn: 20G Şırınga" />
+            </div>
+
+            <!-- Description -->
+            <div class="md:col-span-2">
+                <label asp-for="Description" class="block text-sm font-medium text-gray-700">Detaylı Açıklama</label>
+                <textarea asp-for="Description" rows="4"
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-akinRed focus:ring-akinRed sm:text-sm p-2 border"
+                    placeholder="Ürün hakkında detaylı bilgi..."></textarea>
+                <span asp-validation-for="Description" class="text-sm text-red-600"></span>
+            </div>
+            <!-- Çok Satanlar -->
+            <div class="md:col-span-2 flex items-center p-4 bg-gray-50 border rounded-lg mt-2">
+                <input asp-for="IsBestSeller" type="checkbox" class="h-5 w-5 text-akinRed focus:ring-akinRed border-gray-300 rounded cursor-pointer" />
+                <label asp-for="IsBestSeller" class="ml-2 block text-sm font-bold text-gray-900 cursor-pointer">
+                    Ana Sayfa "Çok Satanlar" Vitrininde Göster
+                </label>
+            </div>
+        </div>
+
+        <!-- Butonlar -->
+        <div class="flex items-center justify-end space-x-4 pt-6 border-t">
+            <a href="/Product/Index" class="text-sm font-medium text-gray-700 hover:text-gray-900">İptal</a>
+            <button type="submit"
+                class="bg-akinRed hover:bg-red-700 text-white font-bold py-2 px-6 rounded shadow transition duration-200">
+                Ürünü Kaydet
+            </button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

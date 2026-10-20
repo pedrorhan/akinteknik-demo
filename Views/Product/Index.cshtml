@@ -1,0 +1,254 @@
+@model IEnumerable<AkinTeknik.Web.Models.Product>
+@using AkinTeknik.Web.Helpers
+
+@{
+    var catIdParam = Context.Request.Query["categoryId"].ToString();
+    string currentCatName = "Tüm Ürünler";
+    int parsedCatId = 0;
+    bool hasValidCatId = !string.IsNullOrEmpty(catIdParam) && int.TryParse(catIdParam, out parsedCatId);
+
+    var allCats = (IEnumerable<AkinTeknik.Web.Models.Category>)(ViewBag.Categories ?? new List<AkinTeknik.Web.Models.Category>());
+    var categoryMap = (IDictionary<int, AkinTeknik.Web.Models.Category>)(ViewBag.CategoryMap ?? allCats.ToDictionary(c => c.Id));
+    var activePathIds = hasValidCatId ? CategoryHelper.GetActivePathIds(parsedCatId, categoryMap) : new HashSet<int>();
+    var breadcrumbTrail = hasValidCatId ? CategoryHelper.GetBreadcrumbTrail(parsedCatId, categoryMap) : new List<AkinTeknik.Web.Models.Category>();
+
+    if (hasValidCatId && categoryMap.TryGetValue(parsedCatId, out var currentCat))
+    {
+        currentCatName = currentCat.Name;
+    }
+
+    ViewData["Title"] = currentCatName != "Tüm Ürünler" ? $"{currentCatName} Ürünleri - Akın Teknik" : "Endüstriyel Ürünler & Kalıp Sarf Malzemeleri";
+    ViewData["Description"] = currentCatName != "Tüm Ürünler" 
+        ? $"Akın Teknik bünyesindeki {currentCatName} kategorisi ürünleri. Yüksek kalite standartları, stoktan hızlı teslimat ve toptan teklif avantajı."
+        : "Yüksek hassasiyetli kalıp parlatma keçeleri, elmas pastalar, seramik eğeler ve atölye ekipmanlarımızı inceleyin, anında toptan fiyat teklifi alın.";
+}
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    
+    <!-- Gezinti Yolu (Breadcrumb) -->
+    <nav class="text-sm text-gray-500 mb-4 flex items-center space-x-2 flex-wrap" aria-label="Gezinti Yolu">
+        <a href="/" class="hover:text-akinRed transition-colors" aria-label="Ana Sayfa"><i class="fas fa-home" aria-hidden="true"></i></a>
+        <span><i class="fas fa-chevron-right text-xs" aria-hidden="true"></i></span>
+        <a href="/Product" class="hover:text-akinRed transition-colors">Ürünler</a>
+        @if (hasValidCatId && breadcrumbTrail.Any())
+        {
+            foreach (var bCat in breadcrumbTrail)
+            {
+                <span><i class="fas fa-chevron-right text-xs" aria-hidden="true"></i></span>
+                if (bCat.Id == parsedCatId)
+                {
+                    <span class="text-akinBlack font-bold">@bCat.Name</span>
+                }
+                else
+                {
+                    <a href="/Product?categoryId=@bCat.Id" class="hover:text-akinRed transition-colors">@bCat.Name</a>
+                }
+            }
+        }
+    </nav>
+    
+    <h1 class="text-2xl font-black text-akinBlack mb-6 border-b pb-4">@currentCatName</h1>
+
+    <div class="flex flex-col md:flex-row gap-8">
+        
+        <!-- Sol Filtreleme / Kategori Sütunu -->
+        <aside class="w-full md:w-1/4" aria-label="Kategori Filtresi">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 sm:p-6 md:sticky md:top-24">
+                <!-- Mobil Aç/Kapa Başlığı -->
+                <button type="button" onclick="toggleFilterMenu()" aria-expanded="false" aria-controls="filterContent" class="w-full flex items-center justify-between text-base sm:text-lg font-bold border-b pb-3 text-akinBlack focus:outline-none focus:ring-2 focus:ring-akinRed/20 rounded">
+                    <span class="flex items-center"><i class="fas fa-filter text-akinRed mr-2.5 text-sm sm:text-base" aria-hidden="true"></i> Kategorileri Filtrele</span>
+                    <i id="filterChevron" class="fas fa-chevron-down text-sm text-gray-400 md:hidden transition-transform duration-200" aria-hidden="true"></i>
+                </button>
+                
+                <div id="filterContent" class="hidden md:block mt-4">
+                    <ul class="space-y-1 text-sm text-gray-600 max-h-[60vh] md:max-h-none overflow-y-auto pr-1">
+                        <li>
+                            <a href="/Product" class="flex items-center justify-between py-2 px-3 rounded-xl font-bold transition-all @(!hasValidCatId ? "bg-red-50 text-akinRed border-l-4 border-akinRed shadow-xs" : "text-gray-700 hover:text-akinRed hover:bg-gray-50")">
+                                <span>Tüm Ürünler</span>
+                                @if(!hasValidCatId)
+                                {
+                                    <i class="fas fa-check text-xs"></i>
+                                }
+                            </a>
+                        </li>
+                        
+                        @if (allCats != null)
+                        {
+                            var rootCats = allCats.Where(c => c.ParentCategoryId == null).OrderBy(c => c.DisplayOrder).ThenBy(c => c.Name);
+                            
+                            foreach (var cat in rootCats)
+                            {
+                                <partial name="_CategoryFilterNode" model="new AkinTeknik.Web.Models.CategoryFilterItemViewModel {
+                                    Category = cat,
+                                    SelectedCategoryId = hasValidCatId ? parsedCatId : null,
+                                    ActivePathIds = activePathIds,
+                                    Level = 0,
+                                    UseSlug = false
+                                }" />
+                            }
+                        }
+                    </ul>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Sağ Ürün Grid -->
+        <main class="w-full md:w-3/4">
+            
+            @{
+                var sortParam = Context.Request.Query["sort"].ToString();
+                var searchQ = Context.Request.Query["q"].ToString();
+                var sortedModel = Model ?? new List<AkinTeknik.Web.Models.Product>();
+                
+                // Arama Filtrelemesi
+                if (!string.IsNullOrWhiteSpace(searchQ))
+                {
+                    var qLower = searchQ.ToLower();
+                    sortedModel = sortedModel.Where(p => 
+                        (p.Name != null && p.Name.ToLower().Contains(qLower)) || 
+                        (p.Description != null && p.Description.ToLower().Contains(qLower)));
+                }
+                
+                // Kategori Filtrelemesi (Seçili kategori ve varsa tüm alt/torun kategorileri dahil edilir)
+                if (hasValidCatId)
+                {
+                    var targetCatIds = CategoryHelper.GetAllDescendantIds(parsedCatId, allCats);
+                    sortedModel = sortedModel.Where(p => targetCatIds.Contains(p.CategoryId));
+                }
+
+                // Sıralama (Varsayılan: Eskiden Yeniye)
+                if (sortParam == "newest")
+                    sortedModel = sortedModel.OrderByDescending(p => p.Id);
+                else if (sortParam == "az")
+                    sortedModel = sortedModel.OrderBy(p => p.Name);
+                else if (sortParam == "za")
+                    sortedModel = sortedModel.OrderByDescending(p => p.Name);
+                else
+                    sortedModel = sortedModel.OrderBy(p => p.Id); // Varsayılan: Eskiden Yeniye
+            }
+
+            <!-- Grid Header -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+                <span class="text-sm font-semibold text-gray-500">
+                    Toplam <strong class="text-akinBlack">@sortedModel.Count()</strong> ürün listeleniyor
+                </span>
+                
+                <div class="flex items-center space-x-2">
+                    <label for="sortSelect" class="text-xs font-medium text-gray-500 whitespace-nowrap hidden sm:inline">Sıralama:</label>
+                    <select id="sortSelect" onchange="updateSort(this.value)" class="border border-gray-300 rounded-xl text-xs sm:text-sm px-3 py-2 font-semibold text-gray-700 focus:ring-2 focus:ring-akinRed/20 focus:border-akinRed bg-white shadow-sm cursor-pointer outline-none">
+                        <option value="oldest" selected="@(string.IsNullOrEmpty(sortParam) || sortParam == "oldest")">Eskiden Yeniye</option>
+                        <option value="newest" selected="@(sortParam == "newest")">Yeniden Eskiye</option>
+                        <option value="az" selected="@(sortParam == "az")">A'dan Z'ye</option>
+                        <option value="za" selected="@(sortParam == "za")">Z'den A'ya</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Ürünler -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                @if(sortedModel.Any())
+                {
+                    foreach(var item in sortedModel)
+                    {
+                        <div class="bg-white rounded-xl shadow-sm hover:shadow-md hover:border-gray-300 transition-all border border-gray-200 overflow-hidden flex flex-col group">
+                            <!-- Ürün Görseli -->
+                            <div class="h-56 w-full bg-white flex items-center justify-center border-b border-gray-100 p-4 relative overflow-hidden">
+                                @if(!string.IsNullOrEmpty(item.ImageUrl)){
+                                    <img src="@item.ImageUrl" alt="@item.Name - @(item.Category != null ? item.Category.Name : "Kalıp Ekipmanı") | Akın Teknik" class="max-h-full object-contain group-hover:scale-105 transition-transform duration-300" />
+                                }else{
+                                    <i class="fas fa-box-open text-5xl text-gray-300"></i>
+                                }
+                                
+                                @if(item.IsBestSeller)
+                                {
+                                    <span class="absolute top-2.5 right-2.5 bg-akinRed text-white text-[11px] font-bold px-2.5 py-1 rounded-lg shadow-sm">
+                                        Çok Satan
+                                    </span>
+                                }
+                            </div>
+                            
+                            <!-- Ürün Detay -->
+                            <div class="p-5 flex-grow flex flex-col justify-between">
+                                <div>
+                                    <span class="text-[11px] text-akinRed font-bold uppercase tracking-wider mb-1.5 block">
+                                        @(item.Category != null ? item.Category.Name : "Endüstriyel")
+                                    </span>
+                                    <h3 class="text-base font-bold text-gray-900 leading-snug group-hover:text-akinRed transition-colors line-clamp-2">@item.Name</h3>
+                                </div>
+                                
+                                <div class="mt-4 pt-2">
+                                    <a href="/Urun/@item.Slug" class="w-full bg-akinBlack hover:bg-akinRed text-white font-bold py-2.5 px-4 rounded-xl transition-colors flex items-center justify-center text-sm shadow-sm">
+                                        <i class="fas fa-search mr-2 text-xs"></i> İncele & Bilgi Al
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="col-span-full py-16 px-6 text-center bg-white rounded-2xl border border-gray-200 shadow-sm">
+                        <div class="w-16 h-16 bg-red-50 text-akinRed rounded-2xl flex items-center justify-center mx-auto mb-4 text-2xl">
+                            <i class="fas fa-search-minus"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 mb-2">Aradığınız Kriterde Ürün Bulunamadı</h3>
+                        <p class="text-gray-500 text-sm max-w-md mx-auto mb-6">
+                            Farklı bir arama terimi deneyebilir, filtreleri temizleyebilir veya aradığınız özel ölçü için doğrudan teknik ekibimizle iletişime geçebilirsiniz.
+                        </p>
+                        <div class="flex flex-wrap items-center justify-center gap-3">
+                            <a href="/Product" class="bg-akinBlack hover:bg-akinRed text-white text-xs font-bold py-2.5 px-5 rounded-xl transition-colors shadow-sm">
+                                <i class="fas fa-undo mr-1.5"></i> Tüm Ürünleri Gör
+                            </a>
+                            <a href="https://wa.me/905550000000?text=@Uri.EscapeDataString("Merhaba, web sitenizde aradığım ürünü bulamadım. Özel ölçü veya stok hakkında bilgi alabilir miyim?")" target="_blank" rel="noopener noreferrer" class="bg-green-600 hover:bg-green-700 text-white text-xs font-bold py-2.5 px-5 rounded-xl transition-colors shadow-sm">
+                                <i class="fab fa-whatsapp mr-1.5"></i> WhatsApp ile Özel Ölçü Sor
+                            </a>
+                        </div>
+                    </div>
+                }
+            </div>
+        </main>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function toggleSubcat(id) {
+            var el = document.getElementById(id);
+            var icon = document.getElementById(id.replace('sub-', 'icon-'));
+            if (el) {
+                if (el.classList.contains('hidden')) {
+                    el.classList.remove('hidden');
+                    if (icon) {
+                        icon.classList.add('rotate-180');
+                        icon.classList.add('text-akinRed');
+                    }
+                } else {
+                    el.classList.add('hidden');
+                    if (icon) {
+                        icon.classList.remove('rotate-180');
+                        icon.classList.remove('text-akinRed');
+                    }
+                }
+            }
+        }
+
+        function toggleFilterMenu() {
+            if (window.innerWidth >= 768) return;
+            var content = document.getElementById('filterContent');
+            var icon = document.getElementById('filterChevron');
+            if (content.classList.contains('hidden')) {
+                content.classList.remove('hidden');
+                if (icon) icon.classList.add('rotate-180');
+            } else {
+                content.classList.add('hidden');
+                if (icon) icon.classList.remove('rotate-180');
+            }
+        }
+
+        function updateSort(val) {
+            var url = new URL(window.location.href);
+            url.searchParams.set('sort', val);
+            window.location.href = url.toString();
+        }
+    </script>
+}

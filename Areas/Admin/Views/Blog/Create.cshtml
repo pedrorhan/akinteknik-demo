@@ -1,0 +1,98 @@
+@model AkinTeknik.Web.Models.BlogPost
+
+@{
+    ViewData["Title"] = "Yeni Blog Yazısı Ekle";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="max-w-4xl mx-auto py-6">
+    <div class="flex items-center justify-between mb-8 pb-4 border-b border-gray-200">
+        <div>
+            <h1 class="text-2xl font-black text-gray-900">Yeni Blog Yazısı Ekle</h1>
+            <p class="text-sm text-gray-500 mt-1">Sektörel rehber veya bilgilendirici yeni bir makale yayınlayın.</p>
+        </div>
+        <a href="/Admin/Blog" class="inline-flex items-center text-sm font-bold text-gray-500 hover:text-akinBlack transition-colors">
+            <i class="fas fa-arrow-left mr-2"></i> Listeye Dön
+        </a>
+    </div>
+
+    <form action="/Admin/Blog/Create" method="post" enctype="multipart/form-data" class="space-y-6">
+        @Html.AntiForgeryToken()
+
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sm:p-8 space-y-6">
+            <!-- Başlık -->
+            <div>
+                <label class="block text-sm font-bold text-gray-700 mb-2">Makale Başlığı <span class="text-akinRed">*</span></label>
+                <input type="text" id="blogTitle" name="Title" required placeholder="Örn: Kalıp Parlatmada Keçe Seçimi ve İpuçları"
+                    class="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-akinRed focus:border-akinRed text-sm" />
+            </div>
+
+            <!-- Slug (SEO Link) -->
+            <div>
+                <label class="block text-sm font-bold text-gray-700 mb-2">SEO Bağlantısı (Slug) <span class="text-akinRed">*</span></label>
+                <div class="flex items-center">
+                    <span class="bg-gray-100 border border-r-0 border-gray-300 px-3 py-2.5 rounded-l-xl text-xs text-gray-500 font-mono">/Blog/</span>
+                    <input type="text" id="blogSlug" name="Slug" required placeholder="kalip-parlatmada-kece-secimi"
+                        class="w-full px-4 py-2.5 rounded-r-xl border border-gray-300 focus:ring-2 focus:ring-akinRed focus:border-akinRed text-sm font-mono text-gray-700" />
+                </div>
+                <span class="text-xs text-gray-400 mt-1 block">Başlığa göre otomatik üretilir, isterseniz manuel düzenleyebilirsiniz.</span>
+            </div>
+
+            <!-- Kapak Görseli -->
+            <div>
+                <label class="block text-sm font-bold text-gray-700 mb-2">Kapak Fotoğrafı</label>
+                <input type="file" name="ImageFile" accept="image/*"
+                    class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-red-50 file:text-akinRed hover:file:bg-red-100 cursor-pointer" />
+                <span class="text-xs text-gray-400 mt-1 block">Tavsiye edilen görsel boyutu: 1200x630px (Yatay format).</span>
+            </div>
+
+            <!-- Kısa Özet -->
+            <div>
+                <label class="block text-sm font-bold text-gray-700 mb-2">Kısa Özet (Kartlarda gözükecek 1-2 cümle)</label>
+                <textarea name="Summary" rows="2" placeholder="Örn: Sanayi tipi kalıp parlatma işlemlerinde kullanılan keçe türleri ve aşındırıcı pastaların doğru kullanım rehberi..."
+                    class="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-akinRed focus:border-akinRed text-sm leading-relaxed"></textarea>
+            </div>
+
+            <!-- Detaylı İçerik -->
+            <div>
+                <label class="block text-sm font-bold text-gray-700 mb-2">Detaylı Makale İçeriği <span class="text-akinRed">*</span></label>
+                <textarea name="Content" rows="12" required placeholder="Makalenizi buraya yazın. Paragraflar arasına satır boşluğu bırakarak düzenleyebilirsiniz..."
+                    class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-akinRed focus:border-akinRed text-sm leading-relaxed"></textarea>
+            </div>
+
+            <!-- Yayın Durumu -->
+            <div class="pt-2">
+                <label class="inline-flex items-center cursor-pointer">
+                    <input type="checkbox" name="IsPublished" value="true" checked class="w-4 h-4 text-akinRed border-gray-300 rounded focus:ring-akinRed" />
+                    <span class="ml-2.5 text-sm font-bold text-gray-800">Hemen Yayına Al (Aktif)</span>
+                </label>
+                <input type="hidden" name="IsPublished" value="false" />
+            </div>
+        </div>
+
+        <!-- Butonlar -->
+        <div class="flex justify-end gap-4 pt-2">
+            <a href="/Admin/Blog" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-3 px-6 rounded-xl transition-colors text-sm">
+                Vazgeç
+            </a>
+            <button type="submit" class="bg-akinRed hover:bg-red-700 text-white font-bold py-3 px-8 rounded-xl shadow-lg transition-all flex items-center text-sm">
+                <i class="fas fa-save mr-2"></i> Makaleyi Kaydet
+            </button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        // Başlık yazıldıkça otomatik SEO uyumlu Slug üretme
+        document.getElementById('blogTitle').addEventListener('input', function () {
+            let str = this.value.toLowerCase().trim();
+            const trMap = { 'ç': 'c', 'ğ': 'g', 'ı': 'i', 'ö': 'o', 'ş': 's', 'ü': 'u' };
+            for (let key in trMap) {
+                str = str.replace(new RegExp(key, 'g'), trMap[key]);
+            }
+            str = str.replace(/[^a-z0-9 -]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-');
+            document.getElementById('blogSlug').value = str;
+        });
+    </script>
+}

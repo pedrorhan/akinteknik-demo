@@ -1,0 +1,142 @@
+@{
+    ViewData["Title"] = "Yönetici Girişi";
+    Layout = null; // Giriş sayfasında admin menüsü gözükmemeli
+}
+
+<!DOCTYPE html>
+<html lang="tr" class="h-full bg-gray-900">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Yönetici Girişi - Akın Teknik Admin</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png?v=2" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon.png?v=2" />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=2" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=2" />
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        akinRed: '#da291c',
+                        akinBlack: '#1a1a1a'
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+</head>
+
+<body class="h-full flex items-center justify-center bg-gradient-to-br from-gray-950 via-gray-900 to-black p-4 font-sans antialiased">
+
+    <div class="w-full max-w-md">
+        <!-- Logo ve Başlık -->
+        <div class="text-center mb-8">
+            <a href="/" class="inline-block hover:opacity-90 transition-opacity">
+                <span class="text-3xl font-black text-white tracking-wider">AKIN<span class="text-akinRed">TEKNİK</span></span>
+            </a>
+            <h2 class="mt-3 text-xl font-bold text-gray-200">Yönetim Paneli Girişi</h2>
+            <p class="text-xs text-gray-400 mt-1">Lütfen devam etmek için yönetici kimliğinizi doğrulayın.</p>
+        </div>
+
+        <!-- Giriş Kartı -->
+        <div class="bg-gray-800/90 backdrop-blur-xl border border-gray-700/60 rounded-3xl p-8 shadow-2xl shadow-black/80">
+            
+            @if (ViewBag.Error != null)
+            {
+                <div class="mb-6 bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3 rounded-xl flex items-center text-sm shadow-sm">
+                    <i class="fas fa-exclamation-circle text-base mr-2.5 shrink-0"></i>
+                    <span>@ViewBag.Error</span>
+                </div>
+            }
+
+            <form action="/Admin/Account/Login" method="post" class="space-y-5">
+                @Html.AntiForgeryToken()
+                @if (ViewBag.ReturnUrl != null)
+                {
+                    <input type="hidden" name="returnUrl" value="@ViewBag.ReturnUrl" />
+                }
+
+                <!-- Kullanıcı Adı -->
+                <div>
+                    <label class="block text-xs font-bold text-gray-300 uppercase tracking-wider mb-2">
+                        Kullanıcı Adı / E-Posta
+                    </label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
+                            <i class="fas fa-user text-sm"></i>
+                        </div>
+                        <input type="text" name="Username" required autofocus placeholder="admin"
+                            class="w-full pl-10 pr-4 py-3 rounded-xl bg-gray-900/80 border border-gray-700 text-white placeholder-gray-500 text-sm focus:outline-none focus:ring-2 focus:ring-akinRed focus:border-akinRed transition-all" />
+                    </div>
+                </div>
+
+                <!-- Şifre -->
+                <div>
+                    <label class="block text-xs font-bold text-gray-300 uppercase tracking-wider mb-2">
+                        Şifre
+                    </label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
+                            <i class="fas fa-lock text-sm"></i>
+                        </div>
+                        <input type="password" id="passwordInput" name="Password" required placeholder="••••••••"
+                            class="w-full pl-10 pr-11 py-3 rounded-xl bg-gray-900/80 border border-gray-700 text-white placeholder-gray-500 text-sm focus:outline-none focus:ring-2 focus:ring-akinRed focus:border-akinRed transition-all" />
+                        <button type="button" onclick="togglePassword()" class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-gray-400 hover:text-white transition-colors focus:outline-none">
+                            <i id="passwordToggleIcon" class="fas fa-eye text-sm"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Beni Hatırla -->
+                <div class="flex items-center justify-between text-xs pt-1">
+                    <label class="inline-flex items-center text-gray-400 cursor-pointer hover:text-gray-300">
+                        <input type="checkbox" name="RememberMe" value="true" checked class="w-4 h-4 rounded bg-gray-900 border-gray-700 text-akinRed focus:ring-akinRed" />
+                        <span class="ml-2">Oturumu açık tut</span>
+                    </label>
+                    <a href="/" class="text-gray-400 hover:text-akinRed transition-colors">
+                        Siteye Dön
+                    </a>
+                </div>
+
+                <!-- Giriş Butonu -->
+                <div class="pt-2">
+                    <button type="submit"
+                        class="w-full bg-akinRed hover:bg-red-700 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg shadow-red-900/30 transition-all flex items-center justify-center gap-2 text-sm">
+                        <i class="fas fa-sign-in-alt"></i>
+                        <span>Giriş Yap</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Telif -->
+        <p class="text-center text-xs text-gray-600 mt-6">
+            &copy; @DateTime.Now.Year Akın Teknik Hırdavat Güvenli Yönetim Portalı
+        </p>
+    </div>
+
+    <script>
+        function togglePassword() {
+            var input = document.getElementById('passwordInput');
+            var icon = document.getElementById('passwordToggleIcon');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+    </script>
+</body>
+
+</html>

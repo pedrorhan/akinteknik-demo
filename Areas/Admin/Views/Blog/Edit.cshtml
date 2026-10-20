@@ -1,0 +1,91 @@
+@model AkinTeknik.Web.Models.BlogPost
+
+@{
+    ViewData["Title"] = "Blog Yazısını Düzenle";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="max-w-4xl mx-auto py-6">
+    <div class="flex items-center justify-between mb-8 pb-4 border-b border-gray-200">
+        <div>
+            <h1 class="text-2xl font-black text-gray-900">Blog Yazısını Düzenle</h1>
+            <p class="text-sm text-gray-500 mt-1">#@Model.Id numaralı makalenin içerik ve görsellerini güncelleyin.</p>
+        </div>
+        <a href="/Admin/Blog" class="inline-flex items-center text-sm font-bold text-gray-500 hover:text-akinBlack transition-colors">
+            <i class="fas fa-arrow-left mr-2"></i> Listeye Dön
+        </a>
+    </div>
+
+    <form action="/Admin/Blog/Edit" method="post" enctype="multipart/form-data" class="space-y-6">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="Id" value="@Model.Id" />
+        <input type="hidden" name="ImageUrl" value="@Model.ImageUrl" />
+        <input type="hidden" name="CreatedAt" value="@Model.CreatedAt.ToString("o")" />
+
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sm:p-8 space-y-6">
+            <!-- Başlık -->
+            <div>
+                <label class="block text-sm font-bold text-gray-700 mb-2">Makale Başlığı <span class="text-akinRed">*</span></label>
+                <input type="text" id="blogTitle" name="Title" value="@Model.Title" required
+                    class="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-akinRed focus:border-akinRed text-sm font-semibold" />
+            </div>
+
+            <!-- Slug (SEO Link) -->
+            <div>
+                <label class="block text-sm font-bold text-gray-700 mb-2">SEO Bağlantısı (Slug) <span class="text-akinRed">*</span></label>
+                <div class="flex items-center">
+                    <span class="bg-gray-100 border border-r-0 border-gray-300 px-3 py-2.5 rounded-l-xl text-xs text-gray-500 font-mono">/Blog/</span>
+                    <input type="text" id="blogSlug" name="Slug" value="@Model.Slug" required
+                        class="w-full px-4 py-2.5 rounded-r-xl border border-gray-300 focus:ring-2 focus:ring-akinRed focus:border-akinRed text-sm font-mono text-gray-700" />
+                </div>
+            </div>
+
+            <!-- Kapak Görseli -->
+            <div>
+                <label class="block text-sm font-bold text-gray-700 mb-2">Kapak Fotoğrafı</label>
+                @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                {
+                    <div class="mb-3 w-48 h-28 rounded-xl overflow-hidden border border-gray-200 bg-gray-50">
+                        <img src="@Model.ImageUrl" alt="@Model.Title Görseli" class="w-full h-full object-cover" />
+                    </div>
+                }
+                <input type="file" name="ImageFile" accept="image/*"
+                    class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-red-50 file:text-akinRed hover:file:bg-red-100 cursor-pointer" />
+                <span class="text-xs text-gray-400 mt-1 block">Yeni bir görsel seçmezseniz mevcut görsel korunur.</span>
+            </div>
+
+            <!-- Kısa Özet -->
+            <div>
+                <label class="block text-sm font-bold text-gray-700 mb-2">Kısa Özet (Kartlarda gözükecek 1-2 cümle)</label>
+                <textarea name="Summary" rows="2"
+                    class="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-akinRed focus:border-akinRed text-sm leading-relaxed">@Model.Summary</textarea>
+            </div>
+
+            <!-- Detaylı İçerik -->
+            <div>
+                <label class="block text-sm font-bold text-gray-700 mb-2">Detaylı Makale İçeriği <span class="text-akinRed">*</span></label>
+                <textarea name="Content" rows="14" required
+                    class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-akinRed focus:border-akinRed text-sm leading-relaxed">@Model.Content</textarea>
+            </div>
+
+            <!-- Yayın Durumu -->
+            <div class="pt-2">
+                <label class="inline-flex items-center cursor-pointer">
+                    <input type="checkbox" name="IsPublished" value="true" @(Model.IsPublished ? "checked" : "") class="w-4 h-4 text-akinRed border-gray-300 rounded focus:ring-akinRed" />
+                    <span class="ml-2.5 text-sm font-bold text-gray-800">Yayında (Aktif)</span>
+                </label>
+                <input type="hidden" name="IsPublished" value="false" />
+            </div>
+        </div>
+
+        <!-- Butonlar -->
+        <div class="flex justify-end gap-4 pt-2">
+            <a href="/Admin/Blog" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-3 px-6 rounded-xl transition-colors text-sm">
+                Vazgeç
+            </a>
+            <button type="submit" class="bg-akinRed hover:bg-red-700 text-white font-bold py-3 px-8 rounded-xl shadow-lg transition-all flex items-center text-sm">
+                <i class="fas fa-save mr-2"></i> Değişiklikleri Güncelle
+            </button>
+        </div>
+    </form>
+</div>

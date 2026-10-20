@@ -1,0 +1,80 @@
+@model IEnumerable<AkinTeknik.Web.Models.Category>
+
+@{
+    ViewData["Title"] = "Ürün Kategorileri & Sarf Malzemeleri";
+    ViewData["Description"] = "Akın Teknik bünyesindeki tüm kalıp sarf malzemesi, parlatma keçeleri, elmas eğeler ve teknik hırdavat ürün kategorilerini inceleyin.";
+    ViewData["Keywords"] = "kalıp malzemeleri kategorileri, parlatma keçesi çeşitleri, elmas eğeler, teknik sarf malzemeler";
+}
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    @{
+        var sortParam = Context.Request.Query["sort"].ToString();
+        var sortedModel = Model ?? new List<AkinTeknik.Web.Models.Category>();
+        
+        if (sortParam == "za")
+        {
+            sortedModel = sortedModel.OrderByDescending(c => c.Name);
+        }
+        else
+        {
+            // Varsayılan (A-Z)
+            sortedModel = sortedModel.OrderBy(c => c.Name);
+        }
+    }
+
+    <nav class="text-sm text-gray-500 mb-6 flex items-center space-x-2" aria-label="Gezinti Yolu">
+        <a href="/" class="hover:text-akinRed transition-colors" aria-label="Ana Sayfa"><i class="fas fa-home" aria-hidden="true"></i></a>
+        <span><i class="fas fa-chevron-right text-xs" aria-hidden="true"></i></span>
+        <span class="text-akinBlack font-bold">Kategoriler</span>
+    </nav>
+
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-8 bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+        <h1 class="text-xl sm:text-2xl font-bold text-akinBlack">Tüm Kategoriler</h1>
+        
+        <div class="flex items-center space-x-2">
+            <label for="catSortSelect" class="text-xs font-medium text-gray-500 whitespace-nowrap hidden sm:inline">Sıralama:</label>
+            <select id="catSortSelect" onchange="window.location.href='?sort=' + this.value" class="border border-gray-300 rounded-xl text-xs sm:text-sm px-3 py-2 font-semibold text-gray-700 focus:ring-2 focus:ring-akinRed/20 focus:border-akinRed bg-white shadow-sm cursor-pointer outline-none">
+                <option value="az" selected="@(sortParam != "za")">A'dan Z'ye</option>
+                <option value="za" selected="@(sortParam == "za")">Z'den A'ya</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        @if(sortedModel.Any())
+        {
+            foreach(var cat in sortedModel)
+            {
+                <a href="/Kategori/@cat.Slug" class="group flex flex-col bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md hover:border-gray-300 overflow-hidden transition-all duration-200">
+                    <div class="w-full h-48 bg-white flex items-center justify-center overflow-hidden border-b border-gray-100 p-4">
+                        @if(!string.IsNullOrEmpty(cat.ImageUrl)){
+                            <img src="@cat.ImageUrl" alt="@cat.Name Kategorisi - Akın Teknik Kalıp ve Parlatma Malzemeleri" class="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-300" />
+                        } else {
+                            <i class="fas fa-boxes text-5xl text-gray-300 group-hover:text-akinRed transition-colors"></i>
+                        }
+                    </div>
+                    
+                    <div class="p-5 flex flex-col flex-grow items-center text-center justify-between">
+                        <div>
+                            <h3 class="text-base font-bold text-gray-800 group-hover:text-akinRed transition-colors">@cat.Name</h3>
+                            @if(!string.IsNullOrEmpty(cat.Description)){
+                                <p class="text-xs text-gray-500 mt-2 line-clamp-2 leading-relaxed">@cat.Description</p>
+                            }
+                        </div>
+                        
+                        <span class="mt-4 inline-flex items-center text-xs font-bold text-akinRed group-hover:underline">
+                            Ürünleri Gör <i class="fas fa-arrow-right ml-1.5 text-[10px]"></i>
+                        </span>
+                    </div>
+                </a>
+            }
+        }
+        else
+        {
+            <div class="col-span-full text-center py-12">
+                <i class="fas fa-box-open text-6xl text-gray-300 mb-4"></i>
+                <p class="text-gray-500 text-lg">Henüz kategori eklenmemiş.</p>
+            </div>
+        }
+    </div>
+</div>

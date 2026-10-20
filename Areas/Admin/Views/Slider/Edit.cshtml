@@ -1,0 +1,74 @@
+@model AkinTeknik.Web.Models.Slider
+
+@{
+    ViewData["Title"] = "Slider Düzenle";
+}
+
+<div class="max-w-2xl mx-auto bg-white rounded-xl shadow-md p-8 border border-gray-100">
+    <div class="mb-6 border-b pb-4 flex items-center justify-between">
+        <div>
+            <h1 class="text-2xl font-bold text-akinBlack">Slider Görselini Düzenle</h1>
+            <p class="text-sm text-gray-500 mt-1">Görseli, yönlendirme linkini veya gösterim sırasını güncelleyin.</p>
+        </div>
+        <a href="/Admin/Slider" class="text-sm text-gray-500 hover:text-gray-800 transition-colors">
+            <i class="fas fa-arrow-left mr-1"></i> Listeye Dön
+        </a>
+    </div>
+
+    <form action="/Admin/Slider/Edit/@Model.Id" method="post" enctype="multipart/form-data" class="space-y-6">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="Id" value="@Model.Id" />
+        <input type="hidden" name="ImageUrl" value="@Model.ImageUrl" />
+
+        <!-- Mevcut Görsel Önizleme -->
+        <div>
+            <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Mevcut Görsel</label>
+            <div class="relative rounded-xl overflow-hidden border border-gray-200 bg-gray-900 group max-w-lg">
+                <img src="@Model.ImageUrl" alt="Slayt Sıra @Model.DisplayOrder Görseli" class="w-full h-48 object-cover group-hover:opacity-90 transition-opacity" />
+                <div class="absolute bottom-2 left-2 bg-black/70 text-white text-xs px-2.5 py-1 rounded backdrop-blur-sm">
+                    Mevcut Dosya: @System.IO.Path.GetFileName(Model.ImageUrl)
+                </div>
+            </div>
+        </div>
+
+        <!-- Yeni Görsel Yükleme (İsteğe Bağlı) -->
+        <div>
+            <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">
+                Yeni Görsel Yükle <span class="text-gray-400 font-normal lowercase">(değiştirmek istemiyorsanız boş bırakın)</span>
+            </label>
+            <input type="file" name="imageFile" accept="image/*"
+                class="w-full border border-gray-300 rounded-xl p-2.5 text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-akinRed focus:border-akinRed" />
+            <p class="text-xs text-gray-400 mt-1">Önerilen çözünürlük: 1920x600 veya 1200x500 piksel. Otomatik WebP'ye dönüştürülür.</p>
+        </div>
+
+        <!-- Yönlendirme Linki -->
+        <div>
+            <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">
+                Yönlendirme Linki (Tıklanınca Gidilecek URL)
+            </label>
+            <input type="text" name="TargetUrl" value="@Model.TargetUrl" placeholder="Örn: /Product veya /Category/elmas-egeler"
+                class="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-akinRed focus:border-akinRed" />
+            <p class="text-xs text-gray-400 mt-1">Görsele tıklandığında bir yere gitmesini istemiyorsanız boş bırakabilirsiniz.</p>
+        </div>
+
+        <!-- Gösterim Sırası -->
+        <div>
+            <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">
+                Gösterim Sırası
+            </label>
+            <input type="number" name="DisplayOrder" value="@Model.DisplayOrder" min="0"
+                class="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-akinRed focus:border-akinRed" />
+            <p class="text-xs text-gray-400 mt-1">Küçük sayılar daha önce görüntülenir (Örn: 1, 2, 3).</p>
+        </div>
+
+        <!-- Butonlar -->
+        <div class="flex items-center justify-end space-x-3 pt-4 border-t">
+            <a href="/Admin/Slider" class="px-5 py-2.5 text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">
+                İptal
+            </a>
+            <button type="submit" class="bg-akinBlack hover:bg-akinRed text-white font-bold py-2.5 px-6 rounded-xl shadow transition-colors flex items-center">
+                <i class="fas fa-check mr-2"></i> Değişiklikleri Kaydet
+            </button>
+        </div>
+    </form>
+</div>

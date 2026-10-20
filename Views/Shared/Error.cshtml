@@ -1,0 +1,46 @@
+@model ErrorViewModel
+@{
+    ViewData["Title"] = "Bir Hata Oluştu | Akın Teknik";
+    ViewData["Robots"] = "noindex, nofollow";
+}
+
+<div class="min-h-[60vh] flex items-center justify-center py-16 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-2xl w-full text-center space-y-6">
+        
+        <div class="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-red-950/50 border border-red-800 text-akinRed text-4xl shadow-lg">
+            <i class="fas fa-exclamation-circle"></i>
+        </div>
+
+        <div class="space-y-3">
+            <h1 class="text-3xl sm:text-4xl font-extrabold text-white">
+                Beklenmeyen Bir Hata Oluştu
+            </h1>
+            <p class="text-gray-400 text-sm sm:text-base max-w-lg mx-auto leading-relaxed">
+                İşleminiz gerçekleştirilirken teknik bir sorun meydana geldi. Ekibimiz durumdan haberdar edildi.
+            </p>
+        </div>
+
+        <div class="flex flex-wrap items-center justify-center gap-4 pt-4">
+            <a href="/" 
+               class="inline-flex items-center gap-2 bg-akinRed hover:bg-red-700 text-white font-bold px-6 py-3 rounded-xl shadow-lg transition-colors">
+                <i class="fas fa-home"></i>
+                <span>Ana Sayfaya Dön</span>
+            </a>
+            <a href="/Home/Contact" 
+               class="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white border border-white/20 font-bold px-6 py-3 rounded-xl transition-colors">
+                <i class="fas fa-phone"></i>
+                <span>İletişime Geçin</span>
+            </a>
+        </div>
+
+        @if (Model != null && Model.ShowRequestId)
+        {
+            <div class="pt-6 border-t border-gray-800">
+                <p class="text-xs text-gray-500 font-mono">
+                    Hata Referans No (Request ID): <span class="text-gray-400">@Model.RequestId</span>
+                </p>
+            </div>
+        }
+
+    </div>
+</div>

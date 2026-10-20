@@ -1,0 +1,207 @@
+@model AkinTeknik.Web.Models.Category
+@using AkinTeknik.Web.Helpers
+
+@{
+    var catName = Model?.Name ?? "Kategori";
+    ViewData["Title"] = $"{catName} - Kalıp ve Parlatma Malzemeleri";
+    var catDesc = !string.IsNullOrEmpty(Model?.Description)
+        ? Model.Description
+        : $"Akın Teknik {catName} kategorisindeki sanayi tipi ürünleri inceleyin. Geniş stok ve uygun fiyatlarla hemen toptan teklif isteyin.";
+    if (catDesc.Length > 160) { catDesc = catDesc.Substring(0, 157) + "..."; }
+    ViewData["Description"] = catDesc;
+    ViewData["OgImage"] = !string.IsNullOrEmpty(Model?.ImageUrl) ? Model.ImageUrl : "/images/logo.png";
+    ViewData["Keywords"] = $"{catName}, kalıp malzemeleri, parlatma ekipmanları, toptan tedarik, akın teknik";
+
+    var allCats = (IEnumerable<AkinTeknik.Web.Models.Category>)(ViewBag.Categories ?? new List<AkinTeknik.Web.Models.Category>());
+    var categoryMap = (IDictionary<int, AkinTeknik.Web.Models.Category>)(ViewBag.CategoryMap ?? allCats.ToDictionary(c => c.Id));
+    var activePathIds = (HashSet<int>)(ViewBag.ActivePathIds ?? (Model != null ? CategoryHelper.GetActivePathIds(Model.Id, categoryMap) : new HashSet<int>()));
+    var breadcrumbTrail = (List<AkinTeknik.Web.Models.Category>)(ViewBag.BreadcrumbTrail ?? (Model != null ? CategoryHelper.GetBreadcrumbTrail(Model.Id, categoryMap) : new List<AkinTeknik.Web.Models.Category>()));
+}
+
+@if (Model == null)
+{
+    <div class="max-w-7xl mx-auto py-20 text-center">
+        <h2 class="text-2xl font-bold text-gray-700">Kategori Bulunamadı</h2>
+        <a href="/Category" class="text-akinRed underline mt-4 inline-block">Tüm Kategorilere Dön</a>
+    </div>
+}
+else
+{
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- Breadcrumb (Tam Hiyerarşik Gezinti) -->
+        <nav class="text-sm text-gray-500 mb-4 flex items-center space-x-2 flex-wrap" aria-label="Gezinti Yolu">
+            <a href="/" class="hover:text-akinRed transition-colors" aria-label="Ana Sayfa"><i class="fas fa-home" aria-hidden="true"></i></a>
+            <span><i class="fas fa-chevron-right text-xs" aria-hidden="true"></i></span>
+            <a href="/Category" class="hover:text-akinRed transition-colors">Kategoriler</a>
+            @if (breadcrumbTrail.Any())
+            {
+                foreach (var bCat in breadcrumbTrail)
+                {
+                    <span><i class="fas fa-chevron-right text-xs" aria-hidden="true"></i></span>
+                    if (bCat.Id == Model.Id)
+                    {
+                        <span class="text-akinBlack font-bold">@bCat.Name</span>
+                    }
+                    else
+                    {
+                        <a href="/Kategori/@bCat.Slug" class="hover:text-akinRed transition-colors">@bCat.Name</a>
+                    }
+                }
+            }
+        </nav>
+        
+        <h1 class="text-2xl font-black text-akinBlack mb-6 border-b pb-4">@Model.Name</h1>
+
+        <div class="flex flex-col md:flex-row gap-8">
+            
+            <!-- Sol Filtreleme / Kategori Sütunu -->
+            <aside class="w-full md:w-1/4" aria-label="Kategori Ağacı">
+                <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-6 sticky top-24">
+                    <h3 class="text-lg font-bold border-b pb-3 mb-4 text-akinBlack">Hızlı Geçiş</h3>
+                    
+                    <div class="mb-6">
+                        <ul class="space-y-1 text-sm text-gray-600 max-h-[60vh] md:max-h-none overflow-y-auto pr-1">
+                            <li>
+                                <a href="/Product" class="block py-2 px-3 rounded-xl font-bold text-gray-700 hover:text-akinRed hover:bg-gray-50 transition-colors">
+                                    Tüm Ürünler
+                                </a>
+                            </li>
+                            
+                            @if (allCats != null)
+                            {
+                                var rootCats = allCats.Where(c => c.ParentCategoryId == null).OrderBy(c => c.DisplayOrder).ThenBy(c => c.Name);
+                                
+                                foreach (var cat in rootCats)
+                                {
+                                    <partial name="_CategoryFilterNode" model="new AkinTeknik.Web.Models.CategoryFilterItemViewModel {
+                                        Category = cat,
+                                        SelectedCategoryId = Model.Id,
+                                        ActivePathIds = activePathIds,
+                                        Level = 0,
+                                        UseSlug = true
+                                    }" />
+                                }
+                            }
+                        </ul>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Sağ İçerik Alanı -->
+            <main class="w-full md:w-3/4">
+                @{
+                    var sortParam = Context.Request.Query["sort"].ToString();
+                    var sortedProducts = Model.Products ?? new List<AkinTeknik.Web.Models.Product>();
+                    
+                    if (sortParam == "newest")
+                        sortedProducts = sortedProducts.OrderByDescending(p => p.Id).ToList();
+                    else if (sortParam == "az")
+                        sortedProducts = sortedProducts.OrderBy(p => p.Name).ToList();
+                    else if (sortParam == "za")
+                        sortedProducts = sortedProducts.OrderByDescending(p => p.Name).ToList();
+                    else
+                        sortedProducts = sortedProducts.OrderBy(p => p.Id).ToList(); // Varsayılan: Eskiden Yeniye
+                }
+
+                <!-- Ürünler Header & Sıralama -->
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+                    <span class="text-sm font-semibold text-gray-500">
+                        Bu kategoride <strong class="text-akinBlack">@sortedProducts.Count()</strong> ürün bulundu
+                    </span>
+                    
+                    <div class="flex items-center space-x-2">
+                        <label for="categorySortSelect" class="text-xs font-medium text-gray-500 whitespace-nowrap hidden sm:inline">Sıralama:</label>
+                        <select id="categorySortSelect" onchange="updateSort(this.value)" class="border border-gray-300 rounded-xl text-xs sm:text-sm px-3 py-2 font-semibold text-gray-700 focus:ring-2 focus:ring-akinRed/20 focus:border-akinRed bg-white shadow-sm cursor-pointer outline-none">
+                            <option value="oldest" selected="@(string.IsNullOrEmpty(sortParam) || sortParam == "oldest")">Eskiden Yeniye</option>
+                            <option value="newest" selected="@(sortParam == "newest")">Yeniden Eskiye</option>
+                            <option value="az" selected="@(sortParam == "az")">A'dan Z'ye</option>
+                            <option value="za" selected="@(sortParam == "za")">Z'den A'ya</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Ürün Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    @if(sortedProducts.Any())
+                    {
+                        foreach(var item in sortedProducts)
+                        {
+                            <div class="bg-white rounded-xl shadow-sm hover:shadow-md hover:border-gray-300 transition-all border border-gray-200 overflow-hidden flex flex-col group">
+                                <!-- Ürün Görseli -->
+                                <div class="h-56 w-full bg-white flex items-center justify-center border-b border-gray-100 p-4 relative overflow-hidden">
+                                    @if(!string.IsNullOrEmpty(item.ImageUrl)){
+                                        <img src="@item.ImageUrl" alt="@item.Name - @Model.Name | Akın Teknik" class="max-h-full object-contain group-hover:scale-105 transition-transform duration-300" />
+                                    }else{
+                                        <i class="fas fa-box-open text-5xl text-gray-300"></i>
+                                    }
+                                    
+                                    @if(item.IsBestSeller)
+                                    {
+                                        <span class="absolute top-2.5 right-2.5 bg-akinRed text-white text-[11px] font-bold px-2.5 py-1 rounded-lg shadow-sm">
+                                            Çok Satan
+                                        </span>
+                                    }
+                                </div>
+                                
+                                <!-- Ürün Detay -->
+                                <div class="p-5 flex-grow flex flex-col justify-between">
+                                    <div>
+                                        <span class="text-[11px] text-akinRed font-bold uppercase tracking-wider mb-1.5 block">
+                                            @(Model.Name)
+                                        </span>
+                                        <h3 class="text-base font-bold text-gray-900 leading-snug group-hover:text-akinRed transition-colors line-clamp-2">@item.Name</h3>
+                                    </div>
+                                    
+                                    <div class="mt-4 pt-2">
+                                        <a href="/Urun/@item.Slug" class="w-full bg-akinBlack hover:bg-akinRed text-white font-bold py-2.5 px-4 rounded-xl transition-colors flex items-center justify-center text-sm shadow-sm">
+                                            <i class="fas fa-search mr-2 text-xs"></i> İncele & Bilgi Al
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="col-span-full flex flex-col items-center justify-center py-20 text-center bg-white rounded-xl border border-gray-100">
+                            <i class="fas fa-search text-6xl text-gray-300 mb-4"></i>
+                            <h3 class="text-xl font-bold text-gray-700">Ürün Bulunamadı</h3>
+                            <p class="text-gray-500 mt-2">Bu kategoriye henüz ürün eklenmemiş.</p>
+                        </div>
+                    }
+                </div>
+            </main>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <script>
+        function toggleSubcat(id) {
+            var el = document.getElementById(id);
+            var icon = document.getElementById(id.replace('sub-', 'icon-'));
+            if (el) {
+                if (el.classList.contains('hidden')) {
+                    el.classList.remove('hidden');
+                    if (icon) {
+                        icon.classList.add('rotate-180');
+                        icon.classList.add('text-akinRed');
+                    }
+                } else {
+                    el.classList.add('hidden');
+                    if (icon) {
+                        icon.classList.remove('rotate-180');
+                        icon.classList.remove('text-akinRed');
+                    }
+                }
+            }
+        }
+
+        function updateSort(val) {
+            var url = new URL(window.location.href);
+            url.searchParams.set('sort', val);
+            window.location.href = url.toString();
+        }
+    </script>
+}

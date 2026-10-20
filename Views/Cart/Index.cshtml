@@ -1,0 +1,165 @@
+@model AkinTeknik.Web.Models.Cart
+
+@{
+    ViewData["Title"] = "Teklif Sepeti & Sipariş Listesi";
+    ViewData["Description"] = "Akın Teknik teklif sepetinizdeki ürünleri ve seçtiğiniz ölçüleri görüntüleyin. Tek tıkla WhatsApp veya e-posta üzerinden toptan fiyat teklifi alın.";
+}
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <h1 class="text-3xl font-black text-akinBlack mb-8"><i class="fas fa-shopping-cart text-akinRed mr-3"></i> Sepetim
+    </h1>
+
+    @if (Model == null || !Model.Items.Any())
+    {
+        <div class="bg-white rounded-xl shadow p-12 text-center border border-gray-100">
+            <i class="fas fa-box-open text-6xl text-gray-300 mb-4"></i>
+            <h2 class="text-2xl font-bold text-gray-700 mb-2">Sepetiniz şu an boş.</h2>
+            <p class="text-gray-500 mb-6">Akın Teknik'in kaliteli endüstriyel ürünleriyle sepetinizi doldurmaya ne dersiniz?
+            </p>
+            <a href="/"
+                class="bg-akinRed hover:bg-red-700 text-white font-bold py-3 px-8 rounded shadow-lg transition-colors inline-block">
+                Alışverişe Başla
+            </a>
+        </div>
+    }
+    else
+    {
+        <div class="flex flex-col lg:flex-row gap-8">
+            <!-- Sepet Ürünleri Listesi -->
+            <div class="w-full lg:w-2/3">
+                <div class="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100">
+                    <ul class="divide-y divide-gray-200">
+                        @foreach (var item in Model.Items)
+                        {
+                            // Görsel belirle
+                            string imageUrl = item.Variant != null && !string.IsNullOrEmpty(item.Variant.ImageUrl) ? item.Variant.ImageUrl : item.Product?.ImageUrl;
+
+                            <li class="p-4 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center hover:bg-gray-50 transition-colors">
+                                <!-- Ürün Görseli -->
+                                <div class="w-20 h-20 sm:w-24 sm:h-24 flex-shrink-0 bg-gray-100 rounded-md border p-1 self-center sm:self-auto">
+                                    <img src="@(!string.IsNullOrEmpty(imageUrl) ? imageUrl : "/images/no-image.png")"
+                                        alt="@(item.Product?.Name ?? "Sepetteki Ürün") - Akın Teknik"
+                                        class="w-full h-full object-contain" />
+                                </div>
+
+                                <!-- Ürün Detayları -->
+                                <div class="sm:ml-6 flex-1 w-full mt-3 sm:mt-0">
+                                    <h3 class="text-lg font-bold text-gray-900">
+                                        <a href="/Urun/@item.Product?.Slug" class="hover:text-akinRed">@item.Product?.Name</a>
+                                    </h3>
+                                    
+                                    <!-- Özellikler (3'lü Matris) -->
+                                    <div class="mt-2 space-y-1">
+                                        @{
+                                            string displaySize = item.Variant != null ? item.Variant.Size : (string.IsNullOrEmpty(item.Product?.Dimensions) ? "Varsayılan" : item.Product.Dimensions);
+                                            string displayType = item.Variant != null ? item.Variant.Type : item.Product?.Type;
+                                            string displayDetail = item.Variant != null ? item.Variant.Detail : item.Product?.Detail;
+                                        }
+                                        <p class="text-sm text-gray-500">
+                                            <span class="font-semibold text-gray-700">Ölçü:</span> @displaySize
+                                        </p>
+                                        @if(!string.IsNullOrEmpty(displayType))
+                                        {
+                                            <p class="text-sm text-gray-500">
+                                                <span class="font-semibold text-gray-700">Tip/Kum:</span> @displayType
+                                            </p>
+                                        }
+                                        @if(!string.IsNullOrEmpty(displayDetail))
+                                        {
+                                            <p class="text-sm text-gray-500">
+                                                <span class="font-semibold text-gray-700">Ambalaj:</span> @displayDetail
+                                            </p>
+                                        }
+                                    </div>
+                                </div>
+
+                                <!-- Miktar ve Silme -->
+                                <div class="flex flex-row sm:flex-col items-center sm:items-end justify-between w-full sm:w-auto mt-4 sm:mt-0 gap-3">
+                                    <!-- Adet Kontrolü (+ / -) -->
+                                    <div class="flex items-center border border-gray-300 rounded-xl overflow-hidden bg-white shadow-sm">
+                                        <form action="/Cart/Decrease" method="post" class="inline m-0">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@item.Id" />
+                                            <button type="submit" aria-label="Adeti 1 azalt" class="w-11 h-11 flex items-center justify-center text-gray-500 hover:bg-gray-100 hover:text-akinRed transition-colors font-bold text-lg focus:outline-none focus:ring-1 focus:ring-akinRed select-none" title="Azalt">
+                                                -
+                                            </button>
+                                        </form>
+                                        
+                                        <span class="w-10 text-center font-bold text-gray-800 text-sm select-none" aria-label="Mevcut Adet: @item.Quantity">
+                                            @item.Quantity
+                                        </span>
+                                        
+                                        <form action="/Cart/Increase" method="post" class="inline m-0">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@item.Id" />
+                                            <button type="submit" aria-label="Adeti 1 artır" class="w-11 h-11 flex items-center justify-center text-gray-500 hover:bg-gray-100 hover:text-akinRed transition-colors font-bold text-lg focus:outline-none focus:ring-1 focus:ring-akinRed select-none" title="Arttır">
+                                                +
+                                            </button>
+                                        </form>
+                                    </div>
+
+                                    <!-- Ürünü Kaldır Butonu -->
+                                    <form action="/Cart/Remove" method="post" class="inline m-0">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@item.Id" />
+                                        <button type="submit" aria-label="@(item.Product?.Name ?? "Ürünü") listeden kaldır" class="text-xs text-gray-400 hover:text-akinRed flex items-center gap-1.5 transition-colors font-medium group focus:outline-none focus:ring-1 focus:ring-akinRed rounded-lg px-2.5 py-2" title="Listeden Kaldır">
+                                            <i class="fas fa-trash-alt group-hover:scale-110 transition-transform"></i>
+                                            <span>Kaldır</span>
+                                        </button>
+                                    </form>
+                                </div>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Bilgi İsteme Özeti ve WhatsApp Butonu -->
+            <div class="w-full lg:w-1/3">
+                <div class="bg-gray-50 rounded-xl shadow-md border border-gray-200 p-6 sticky top-24">
+                    <h2 class="text-xl font-bold text-gray-900 mb-6 border-b pb-4">Teklif Listesi</h2>
+
+                    <p class="text-gray-600 mb-6">Listeye eklediğiniz <strong>@Model.Items.Count() kalem</strong> ürün için güncel toptan fiyat ve stok bilgisi almak üzere bize ulaşabilirsiniz.</p>
+
+                    <!-- WhatsApp Sipariş Butonu -->
+                    @{
+                        // WhatsApp mesajını hazırlayalım
+                        string message = "Merhaba Akın Teknik, sitenizdeki şu ürünler hakkında stok ve fiyat teklifi almak istiyorum:\n\n";
+                        foreach (var item in Model.Items)
+                        {
+                            var parts = new List<string>();
+                            if(item.Variant != null)
+                            {
+                                parts.Add(item.Variant.Size);
+                                if(!string.IsNullOrEmpty(item.Variant.Type)) parts.Add(item.Variant.Type);
+                                if(!string.IsNullOrEmpty(item.Variant.Detail)) parts.Add(item.Variant.Detail);
+                            }
+                            else
+                            {
+                                parts.Add(string.IsNullOrEmpty(item.Product?.Dimensions) ? "Standart" : item.Product.Dimensions);
+                                if(!string.IsNullOrEmpty(item.Product?.Type)) parts.Add(item.Product.Type);
+                                if(!string.IsNullOrEmpty(item.Product?.Detail)) parts.Add(item.Product.Detail);
+                            }
+                            string specs = string.Join(" / ", parts);
+                            
+                            message += $"- {item.Product?.Name} ({specs}) : {item.Quantity} Adet\n";
+                        }
+                        
+                        string encodedMessage = Uri.EscapeDataString(message);
+                        string whatsappUrl = $"https://wa.me/905550000000?text={encodedMessage}";
+                    }
+
+                    <a href="@whatsappUrl" target="_blank"
+                        class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-4 px-4 rounded-lg shadow-lg transition-colors flex items-center justify-center text-lg">
+                        <i class="fab fa-whatsapp text-2xl mr-3"></i> WhatsApp'tan Fiyat Sor
+                    </a>
+
+                    <p class="text-xs text-gray-500 text-center mt-4">
+                        <i class="fas fa-info-circle mr-1"></i>
+                        Liste bilgileriniz doğrudan yetkilimize iletilecektir.
+                    </p>
+                </div>
+            </div>
+        </div>
+    }
+</div>

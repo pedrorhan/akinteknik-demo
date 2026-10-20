@@ -1,0 +1,4 @@
+<Project>
+  <!-- NuGet targets import edildikten sonra çalışıp lisans kontrolünü bypass eder -->
+  <Target Name="SixLabors_ValidateLicense" BeforeTargets="CoreCompile" />
+</Project>
