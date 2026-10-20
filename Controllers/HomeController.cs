@@ -337,9 +337,9 @@ public class HomeController : Controller
             sb.AppendLine("## Kurumsal Bilgiler & İletişim");
             sb.AppendLine();
             sb.AppendLine($"- Web Sitesi: {baseUrl}");
-            sb.AppendLine("- Telefon / WhatsApp: +90 530 462 89 37");
-            sb.AppendLine("- E-Posta: info@akinteknik.com");
-            sb.AppendLine("- Markalar: Akın Teknik, Kuzey Parlatma Ekipmanları");
+            sb.AppendLine("- Telefon / WhatsApp: +90 555 000 00 00");
+            sb.AppendLine("- E-Posta: info@demoteknik.com");
+            sb.AppendLine("- Markalar: Akın Teknik Demo, Kuzey Parlatma Ekipmanları");
             sb.AppendLine("- Hizmet Modeli: Toptan satış, teklif listesi oluşturma ve teknik kalıp sarf malzeme tedariki");
             sb.AppendLine();
             sb.AppendLine("## Ürün Kategorileri");
