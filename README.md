@@ -6,27 +6,44 @@
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.4-38B2AC?logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
 [![SQLite](https://img.shields.io/badge/SQLite-Zero_Config-003B57?logo=sqlite&logoColor=white)](https://sqlite.org/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Live Site](https://img.shields.io/badge/Canl%C4%B1%20Site-akinteknik.com-da291c?logo=googlechrome&logoColor=white)](https://akinteknik.com)
 
-Endüstriyel kalıp sarf malzemeleri, polisaj ekipmanları, elmas pastalar ve teknik hırdavat tedarik süreçleri için geliştirilmiş; **sınırsız derinlikte hiyerarşik kategori ağacı**, **B2B teklif sepeti (RFQ)**, **WhatsApp sipariş entegrasyonu** ve **WebP görsel optimizasyonu** içeren modern web katalog platformu.
+Endüstriyel kalıp sarf malzemeleri, polisaj ekipmanları, elmas pastalar ve teknik hırdavat tedarik süreçleri için geliştirilmiş; **sınırsız derinlikte hiyerarşik kategori ağacı**, **B2B teklif sepeti (RFQ)**, **WhatsApp hızlı sipariş/fiyat alma entegrasyonu** ve **otomatik WebP görsel işleme motoru** içeren modern web katalog platformu.
+
+---
+
+## 🌐 Orijinal Canlı Proje Referansı (Production Showcase)
+
+> 🔗 **Canlı Web Sitesi:** [https://akinteknik.com](https://akinteknik.com)  
+> 🏢 **Firma:** Akın Teknik Kalıpçılık ve Parlatma Ekipmanları San. Tic. Ltd. Şti. & Kuzey Parlatma  
+> 👨‍💻 **Tasarım & Geliştirme:** [Orhan Efe Saçlı](https://www.orhanefesacli.com) (OES Yazılım)
+
+Bu depo, canlı yayında aktif olarak hizmet veren [akinteknik.com](https://akinteknik.com) platformunun mimarisini, teknik çözümlerini ve kullanıcı deneyimini sergilemek amacıyla hazırlanmış **açık kaynaklı ve sanitize edilmiş bir demo sürümüdür**.
+
+### 🛡️ Gizlilik & Demo Uyarlaması
+* **Veritabanı & Altyapı:** Canlı MySQL veritabanı ve müşteri teklif verileri tamamen arındırılmış, yerine sıfır konfigürasyonla çalışan **tak-çalıştır SQLite** entegre edilmiştir.
+* **Görseller:** Telif ve ticari gizlilik sebebiyle demo projedeki ürün ve vitrin fotoğrafları **özel endüstriyel yapay zeka fotoğrafçılığı** ile sıfırdan oluşturulmuştur.
+* **İletişim & Konum:** Gerçek şirket telefon numaraları, şirket içi e-postalar ve harita pini generic/demo verilerle maskelenmiştir.
+* **Canlı vs Demo Karşılaştırması:** Sistemin gerçek ürün ağacını, tam kurumsal kimliğini ve canlı operasyonunu görmek için [akinteknik.com](https://akinteknik.com) adresini ziyaret edebilirsiniz.
 
 ---
 
 ## 🌟 Öne Çıkan Özellikler
 
 * 🌳 **Çok Kademeli (Multi-Level) Kategori Ağacı:** 
-  Sınırsız derinlikte alt ve torun kategorileri (*Örn: ELMAS PASTALAR > NACTA ELMAS PASTALAR > NACTA - 40 GRAM*) birbirine bağlayan in-memory hiyerarşi mimarisi. Seçili kategorinin tüm üst dallarını otomatik açan (auto-expand) akıllı sidebar filtreleme sistemi.
+  Sınırsız derinlikte alt ve torun kategorileri (*Örn: ELMAS PASTALAR > NACTA ELMAS PASTALAR > NACTA - 40 GRAM*) birbirine bağlayan in-memory hiyerarşi mimarisi. Seçili kategorinin tüm üst dallarını otomatik açan (auto-expand) ve alt dalları listeleyen akıllı sidebar filtreleme sistemi.
 * ⚡ **Tak-Çalıştır SQLite Desteği (Zero-Configuration):**
-  GitHub'dan indiren herkes hiçbir MySQL veya harici veritabanı kurmadan projeyi tek tıkla çalıştırabilir. İlk çalıştırmada SQLite tabloları ve zengin demo verileri (`DbInitializer`) otomatik oluşturulur.
+  Depoyu klonlayan herkes hiçbir MySQL, PostgreSQL veya harici sunucu kurmadan projeyi tek tıkla çalıştırabilir. İlk çalıştırmada SQLite tabloları ve zengin demo verileri (`DbInitializer`) otomatik oluşturulur.
 * 📄 **B2B Teklif & WhatsApp Entegrasyonu:**
   Klasik e-ticaret ödemesi yerine kurumsal alımlara uygun **Teklif Listesi (RFQ)** ve ürün sayfasından seçili varyantla doğrudan yetkiliye bağlanan WhatsApp hızlı fiyat alma butonu.
 * 🖼️ **Otomatik WebP Görsel Optimizasyonu:**
-  Admin panelinden yüklenen ürün ve kategori fotoğraflarını arka planda otomatik olarak boyutlandıran ve modern WebP formatına dönüştüren `SixLabors.ImageSharp` motoru.
+  Admin panelinden yüklenen ürün ve kategori fotoğraflarını arka planda otomatik olarak boyutlandıran, sıkıştıran ve modern WebP formatına dönüştüren `SixLabors.ImageSharp` motoru.
 * 📊 **Varyant & Teknik Özellik Yönetimi:**
   Her ürün için farklı ölçü, mikron boyutu, sertlik derecesi ve tip tanımlayabilme; varyanta özel fotoğraf ve fiyat eşleştirme.
 * 🔐 **Hafif & Güvenli Yönetici Paneli:**
   Cookie Authentication ile korunan yönetim paneli: Ürünler, çok kademeli kategoriler, slaytlar, kurumsal içerik ve blog yönetimi.
 * 🚀 **Yüksek Performans & SEO:**
-  Sıfır harici JS bağımlılığı (Vanilla JS), hızlı yanıt veren responsive Tailwind CSS tasarımı ve Google Rich Snippets uyumlu Schema.org mikroveri JSON-LD altyapısı.
+  Dinamik XML Sitemap (`/sitemap.xml`), `robots.txt`, yapay zeka arama motorları için `llms.txt`, Google Rich Snippets uyumlu Schema.org (LocalBusiness & Product JSON-LD) mikroveri altyapısı ve güvenlik başlıkları (Security Headers).
 
 ---
 
@@ -36,18 +53,23 @@ Projeyi bilgisayarınızda çalıştırmak için yalnızca [.NET 10 SDK](https:/
 
 ### 1. Depoyu Klonlayın
 ```bash
-git clone https://github.com/KULLANICI_ADINIZ/akinteknik-b2b-catalog.git
-cd akinteknik-b2b-catalog
+git clone https://github.com/KULLANICI_ADINIZ/akinteknik-demo.git
+cd akinteknik-demo
 ```
 
 ### 2. Projeyi Çalıştırın
 ```bash
 dotnet run
 ```
+*veya hot-reload ile çalıştırmak için:*
+```bash
+dotnet watch
+```
 
-Konsolda verilen adresi tarayıcınızda açın (Genellikle: `https://localhost:5001` veya `http://localhost:5000`).
+Tarayıcınızda şu adresi açın:
+👉 **`http://localhost:5272`** *(veya SSL ile `https://localhost:7105`)*
 
-> 💡 **Not:** İlk çalıştırmada SQLite veritabanı (`akinteknik_demo.db`), tablolar ve örnek demo ürünleri otomatik olarak oluşturulur. Ek bir işlem yapmanıza gerek yoktur.
+> 💡 **Not:** İlk çalıştırmada SQLite veritabanı (`akinteknik_demo.db`), tablolar ve örnek demo ürünleri otomatik olarak oluşturulur. Ek bir ayar yapmanıza gerek yoktur.
 
 ---
 
@@ -55,7 +77,7 @@ Konsolda verilen adresi tarayıcınızda açın (Genellikle: `https://localhost:
 
 Yönetim paneline erişmek için:
 
-* **Giriş URL'i:** `https://localhost:5001/Admin/Account/Login`
+* **Giriş URL'i:** `http://localhost:5272/Admin/Account/Login`
 * **Kullanıcı Adı:** `admin`
 * **Şifre:** `admin123`
 
@@ -77,16 +99,16 @@ Varsayılan olarak **SQLite** kullanılmaktadır. İsteğe bağlı olarak **MySQ
 
 ## 🛠️ Teknoloji Yığını (Tech Stack)
 
-| Alan | Teknoloji |
-|---|---|
-| **Framework** | ASP.NET Core 10 (MVC) |
-| **Dil** | C# 13 |
-| **ORM** | Entity Framework Core 10 |
-| **Veritabanı** | SQLite (Varsayılan Demo) / MySQL & MariaDB |
-| **Stil & Tasarım** | Tailwind CSS 3.4 |
-| **İkonlar** | FontAwesome 6 |
-| **Scripting** | Vanilla JavaScript (Sıfır ek kütüphane) |
-| **Görsel İşleme** | SixLabors ImageSharp 4.1.3 |
+| Alan | Teknoloji | Açıklama |
+|---|---|---|
+| **Framework** | ASP.NET Core 10 (MVC) | Modern, yüksek performanslı web çatısı |
+| **Dil** | C# 13 | Son sürüm dil özellikleri |
+| **ORM** | Entity Framework Core 10 | Code-First / DbContext veri erişimi |
+| **Veritabanı** | SQLite (Demo) / MySQL (Canlı) | Sıfır konfigürasyon & taşınabilir veritabanı |
+| **Stil & Tasarım** | Tailwind CSS 3.4 | Modern, utility-first CSS |
+| **İkonlar** | FontAwesome 6 | Vektörel ikon kütüphanesi |
+| **Scripting** | Vanilla JavaScript | Sıfır harici JS şişkinliği, yüksek hız |
+| **Görsel İşleme** | SixLabors ImageSharp 4.1.3 | Otomatik WebP dönüştürücü ve ölçekleyici |
 
 ---
 
@@ -103,6 +125,8 @@ Varsayılan olarak **SQLite** kullanılmaktadır. İsteğe bağlı olarak **MySQ
 │   ├── CategoryHelper.cs   # Çok kademeli özyinelemeli kategori algoritması
 │   └── ImageHelper.cs      # WebP dönüştürücü ve görsel optimizasyonu
 ├── Models/                 # Veritabanı Entity ve ViewModel sınıfları
+├── Properties/
+│   └── launchSettings.json # Yerel geliştirme port ve profil ayarları (Port 5272/7105)
 ├── Views/                  # Razor Görünüm Şablonları
 │   └── Shared/
 │       └── _CategoryFilterNode.cshtml  # Özyinelemeli (Recursive) Sidebar Bileşeni
@@ -114,14 +138,15 @@ Varsayılan olarak **SQLite** kullanılmaktadır. İsteğe bağlı olarak **MySQ
 
 ---
 
-## 🛡️ Güvenlik ve Gizlilik Bildirimi
+## 👨‍💻 Geliştirici & İletişim
 
-Bu açık kaynak demo projesi portföy ve eğitim amaçlı hazırlanmıştır:
-* Gerçek canlı sunucu şifreleri, API anahtarları veya veritabanı bilgileri içermez.
-* Tüm iletişim bilgileri, telefon numaraları ve e-postalar demo verilerle maskelenmiştir.
+* **Geliştirici:** Orhan Efe Saçlı
+* **Web Sitesi:** [https://www.orhanefesacli.com](https://www.orhanefesacli.com)
+* **LinkedIn:** [Orhan Efe Saçlı](https://linkedin.com)
 
 ---
 
 ## 📄 Lisans
 
 Bu proje [MIT Lisansı](LICENSE) kapsamında açık kaynak olarak sunulmaktadır.
+İnceleyebilir, fork'layabilir ve kendi B2B projelerinizde serbestçe kullanabilirsiniz.
