@@ -8,9 +8,14 @@ obj/
 .vscode/
 .idea/
 
-## SQLite temporary files
+## SQLite temporary and database files
+*.db
 *.db-shm
 *.db-wal
+
+## User / ASP.NET runtime files
+.aspnet/
+.local/
 
 ## Uploaded Media
 **/wwwroot/uploads/
